@@ -510,6 +510,12 @@ p { line-height: 1.7; }
 .hero-bg-soldes{ background: linear-gradient(160deg, #2a1515 0%, #5a2020 100%); }
 
 /* Bannières doubles */
+.banner-title { font-size: 2rem; }
+.double-banner-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+}
 .banner-bg { height: 500px; transition: transform 0.5s ease; }
 .banner-bg-manteaux   { background: linear-gradient(160deg, #1c1c1c 0%, #2e2416 60%, #3a2e1a 100%); }
 .banner-bg-accessoires{ background: linear-gradient(160deg, #1a1c20 0%, #2a2030 60%, #352832 100%); }
@@ -1574,8 +1580,13 @@ p { line-height: 1.7; }
   .cart-item { grid-template-columns: 1fr auto auto 30px; grid-template-rows: auto auto; }
   .cart-item-product { grid-column: span 3; }
   .hero { gap: 0.2rem; padding: 0.2rem; }
-  .hero-overlay h2 { font-size: 2rem; }
+  .hero-overlay h2 { font-size: 1.6rem; }
+  .hero-overlay p { font-size: 0.7rem; margin-bottom: 0.8rem; }
+  .hero-overlay { bottom: 1.5rem; left: 1.5rem; right: 1.5rem; }
   .hero-secondary { flex-direction: column; }
+  .double-banner-grid { grid-template-columns: 1fr; }
+  .banner-bg { height: 360px; }
+  .banner-title { font-size: 1.6rem; }
   .form-row { grid-template-columns: 1fr; }
   .account-cards { grid-template-columns: 1fr; }
   .checkout-steps .step-divider { width: 30px; }
@@ -1588,4 +1599,15 @@ p { line-height: 1.7; }
   .btn { padding: 0.75rem 1.5rem; }
   .toast-container { bottom: 1rem; right: 1rem; left: 1rem; }
   .toast { min-width: unset; }
+  /* Hero overlay compact sur très petits écrans */
+  .hero-overlay { bottom: 1rem; left: 1rem; right: 1rem; }
+  .hero-overlay h2 { font-size: 1.3rem; margin-bottom: 0.3rem; }
+  .hero-overlay p { display: none; }
+  .hero-secondary-item .hero-overlay h2 { font-size: 1.1rem; }
+  .hero-main .hero-img-placeholder { min-height: 400px; }
+  .hero-secondary-item .hero-img-placeholder { min-height: 200px; }
+  .banner-bg { height: 280px; }
+  .banner-title { font-size: 1.3rem; }
+  /* Boutons dans les overlay — taille adaptée */
+  .hero-overlay .btn { padding: 0.5rem 1.1rem; font-size: 0.6rem; }
 }
