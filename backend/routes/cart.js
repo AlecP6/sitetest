@@ -1,6 +1,6 @@
 const express = require('express');
-const router = express.Router();
-const db = require('../database/db');
+const router  = express.Router();
+const { query, queryOne } = require('../database/db');
 const { optionalAuth } = require('../middleware/auth');
 
 function getId(req) {
@@ -8,83 +8,100 @@ function getId(req) {
   return { user_id: null, session_id: req.headers['x-session-id'] || 'guest' };
 }
 
-function findCartItems(id) {
-  if (id.user_id) return db.cart_items.find({ user_id: id.user_id });
-  return db.cart_items.find({ session_id: id.session_id });
-}
-
 // GET /api/cart
-router.get('/', optionalAuth, (req, res) => {
-  const items = findCartItems(getId(req)).map(ci => {
-    const p = db.products.findById(ci.product_id);
-    return p ? { ...ci, name: p.name, subtitle: p.subtitle, unit_price: p.price, original_price: p.original_price, stock: p.stock } : null;
-  }).filter(Boolean);
-
-  const total = items.reduce((s, i) => s + i.unit_price * i.quantity, 0);
-  const count = items.reduce((s, i) => s + i.quantity, 0);
-  res.json({ items, total, count });
+router.get('/', optionalAuth, async (req, res) => {
+  try {
+    const id = getId(req);
+    const sql = id.user_id
+      ? `SELECT ci.*, p.name, p.subtitle, p.price AS unit_price, p.original_price, p.stock, p.image_url, p.images
+         FROM cart_items ci JOIN products p ON p.id=ci.product_id WHERE ci.user_id=$1`
+      : `SELECT ci.*, p.name, p.subtitle, p.price AS unit_price, p.original_price, p.stock, p.image_url, p.images
+         FROM cart_items ci JOIN products p ON p.id=ci.product_id WHERE ci.session_id=$1`;
+    const items = await query(sql, [id.user_id || id.session_id]);
+    const total = items.reduce((s, i) => s + Number(i.unit_price) * i.quantity, 0);
+    const count = items.reduce((s, i) => s + i.quantity, 0);
+    res.json({ items, total, count });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // POST /api/cart/add
-router.post('/add', optionalAuth, (req, res) => {
-  const { product_id, quantity = 1, size = '', color = '' } = req.body;
-  if (!product_id) return res.status(400).json({ error: 'product_id requis' });
+router.post('/add', optionalAuth, async (req, res) => {
+  try {
+    const { product_id, quantity = 1, size = '', color = '' } = req.body;
+    if (!product_id) return res.status(400).json({ error: 'product_id requis' });
 
-  const product = db.products.findById(product_id);
-  if (!product) return res.status(404).json({ error: 'Produit non trouvé' });
+    const product = await queryOne('SELECT id FROM products WHERE id=$1', [product_id]);
+    if (!product) return res.status(404).json({ error: 'Produit non trouvé' });
 
-  const id = getId(req);
-  const existing = id.user_id
-    ? db.cart_items.where(ci => ci.user_id === id.user_id && ci.product_id === Number(product_id) && ci.size === size && ci.color === color)[0]
-    : db.cart_items.where(ci => ci.session_id === id.session_id && ci.product_id === Number(product_id) && ci.size === size && ci.color === color)[0];
+    const id = getId(req);
+    const existing = id.user_id
+      ? await queryOne('SELECT * FROM cart_items WHERE user_id=$1 AND product_id=$2 AND size=$3 AND color=$4',
+          [id.user_id, product_id, size, color])
+      : await queryOne('SELECT * FROM cart_items WHERE session_id=$1 AND product_id=$2 AND size=$3 AND color=$4',
+          [id.session_id, product_id, size, color]);
 
-  if (existing) {
-    db.cart_items.update(existing.id, { quantity: existing.quantity + Number(quantity) });
-  } else {
-    db.cart_items.insert({ user_id: id.user_id, session_id: id.session_id, product_id: Number(product_id), quantity: Number(quantity), size, color });
-  }
-  res.json({ message: 'Produit ajouté au panier' });
+    if (existing) {
+      await query('UPDATE cart_items SET quantity=quantity+$1 WHERE id=$2', [Number(quantity), existing.id]);
+    } else {
+      await query(
+        'INSERT INTO cart_items (user_id, session_id, product_id, quantity, size, color) VALUES ($1,$2,$3,$4,$5,$6)',
+        [id.user_id, id.session_id, product_id, Number(quantity), size, color]
+      );
+    }
+    res.json({ message: 'Produit ajouté au panier' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // PUT /api/cart/:id
-router.put('/:id', optionalAuth, (req, res) => {
-  const { quantity } = req.body;
-  if (!quantity || quantity < 1) return res.status(400).json({ error: 'Quantité invalide' });
-  db.cart_items.update(req.params.id, { quantity: Number(quantity) });
-  res.json({ message: 'Quantité mise à jour' });
+router.put('/:id', optionalAuth, async (req, res) => {
+  try {
+    const { quantity } = req.body;
+    if (!quantity || quantity < 1) return res.status(400).json({ error: 'Quantité invalide' });
+    await query('UPDATE cart_items SET quantity=$1 WHERE id=$2', [Number(quantity), req.params.id]);
+    res.json({ message: 'Quantité mise à jour' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // DELETE /api/cart/:id
-router.delete('/:id', optionalAuth, (req, res) => {
-  db.cart_items.delete(req.params.id);
-  res.json({ message: 'Article retiré du panier' });
+router.delete('/:id', optionalAuth, async (req, res) => {
+  try {
+    await query('DELETE FROM cart_items WHERE id=$1', [req.params.id]);
+    res.json({ message: 'Article retiré du panier' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // DELETE /api/cart
-router.delete('/', optionalAuth, (req, res) => {
-  const id = getId(req);
-  if (id.user_id) db.cart_items.deleteWhere({ user_id: id.user_id });
-  else db.cart_items.deleteWhere({ session_id: id.session_id });
-  res.json({ message: 'Panier vidé' });
+router.delete('/', optionalAuth, async (req, res) => {
+  try {
+    const id = getId(req);
+    if (id.user_id) await query('DELETE FROM cart_items WHERE user_id=$1', [id.user_id]);
+    else await query('DELETE FROM cart_items WHERE session_id=$1', [id.session_id]);
+    res.json({ message: 'Panier vidé' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // POST /api/cart/merge
-router.post('/merge', optionalAuth, (req, res) => {
-  if (!req.user) return res.status(401).json({ error: 'Non authentifié' });
-  const { session_id } = req.body;
-  if (!session_id) return res.json({ message: 'Rien à fusionner' });
+router.post('/merge', optionalAuth, async (req, res) => {
+  try {
+    if (!req.user) return res.status(401).json({ error: 'Non authentifié' });
+    const { session_id } = req.body;
+    if (!session_id) return res.json({ message: 'Rien à fusionner' });
 
-  const guestItems = db.cart_items.find({ session_id });
-  for (const item of guestItems) {
-    const existing = db.cart_items.where(ci => ci.user_id === req.user.id && ci.product_id === item.product_id && ci.size === item.size && ci.color === item.color)[0];
-    if (existing) {
-      db.cart_items.update(existing.id, { quantity: existing.quantity + item.quantity });
-      db.cart_items.delete(item.id);
-    } else {
-      db.cart_items.update(item.id, { user_id: req.user.id, session_id: null });
+    const guestItems = await query('SELECT * FROM cart_items WHERE session_id=$1', [session_id]);
+    for (const item of guestItems) {
+      const existing = await queryOne(
+        'SELECT * FROM cart_items WHERE user_id=$1 AND product_id=$2 AND size=$3 AND color=$4',
+        [req.user.id, item.product_id, item.size, item.color]
+      );
+      if (existing) {
+        await query('UPDATE cart_items SET quantity=quantity+$1 WHERE id=$2', [item.quantity, existing.id]);
+        await query('DELETE FROM cart_items WHERE id=$1', [item.id]);
+      } else {
+        await query('UPDATE cart_items SET user_id=$1, session_id=NULL WHERE id=$2', [req.user.id, item.id]);
+      }
     }
-  }
-  res.json({ message: 'Panier fusionné' });
+    res.json({ message: 'Panier fusionné' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 module.exports = router;

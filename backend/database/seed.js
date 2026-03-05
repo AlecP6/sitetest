@@ -1,207 +1,63 @@
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
-const db = require('./db');
+const { query } = require('./db');
 const bcrypt = require('bcryptjs');
 
-// Les images sont ajoutées via le panel admin (upload ou URL)
-// Par défaut : pas d'image (fond neutre affiché)
-const IMG = () => null;
+async function seed() {
+  console.log('🌱 Seeding base de données PostgreSQL...');
 
-// Vider toutes les collections
-db.users.clear(); db.products.clear(); db.cart_items.clear();
-db.orders.clear(); db.order_items.clear(); db.addresses.clear(); db.wishlist.clear();
+  // Vider les tables
+  await query('TRUNCATE users, products, cart_items, orders, order_items, addresses, wishlist RESTART IDENTITY CASCADE');
 
-// Utilisateurs
-db.users.insert({ email: 'admin@elegance.fr', password: bcrypt.hashSync('admin123', 10), first_name: 'Admin', last_name: 'Élégance', phone: '', role: 'admin' });
-db.users.insert({ email: 'user@test.fr', password: bcrypt.hashSync('user123', 10), first_name: 'Marie', last_name: 'Dupont', phone: '06 12 34 56 78' });
+  // Utilisateurs
+  await query(
+    'INSERT INTO users (email, password, first_name, last_name, phone, role) VALUES ($1,$2,$3,$4,$5,$6),($7,$8,$9,$10,$11,$12)',
+    ['admin@elegance.fr', bcrypt.hashSync('admin123', 10), 'Admin', 'Élégance', '', 'admin',
+     'user@test.fr',  bcrypt.hashSync('user123',  10), 'Marie', 'Dupont', '06 12 34 56 78', 'user']
+  );
 
-// Produits
-const products = [
-  // ── Tops & Blouses ───────────────────────────────────────────────────────
-  {
-    name: 'Top Trinity', subtitle: 'Top à rayures en viscose',
-    description: 'Top fluide en viscose à rayures horizontales. Col rond, manches courtes. Coupe légèrement cintrée. Composition : 100% viscose.',
-    price: 195.00, original_price: null, category: 'vetements', subcategory: 'tops',
-    sizes: '["XS","S","M","L","XL"]', colors: '["Blanc","Marine","Beige"]',
-    stock: 100, is_new: 1, is_sale: 0,
-    image_url: IMG(),
-  },
-  {
-    name: 'Top Tendresse', subtitle: 'Rib Top avec col contrasté',
-    description: 'Top en maille côtelée avec col contrasté. Ajusté, met en valeur la silhouette. Composition : 95% coton, 5% élasthanne.',
-    price: 185.00, original_price: null, category: 'vetements', subcategory: 'tops',
-    sizes: '["XS","S","M","L","XL","XXL"]', colors: '["Vert","Crème","Noir"]',
-    stock: 100, is_new: 1, is_sale: 0,
-    image_url: IMG(),
-  },
-  {
-    name: 'Blouse Lyric', subtitle: 'Blouse en soie naturelle',
-    description: 'Blouse en soie naturelle fluide. Col V, boutonnage devant, manches longues avec poignets boutonnés. 100% soie.',
-    price: 245.00, original_price: null, category: 'vetements', subcategory: 'tops',
-    sizes: '["XS","S","M","L"]', colors: '["Ivoire","Blush","Noir"]',
-    stock: 100, is_new: 1, is_sale: 0,
-    image_url: IMG(),
-  },
-  // ── Pulls & Gilets ───────────────────────────────────────────────────────
-  {
-    name: 'Pull Mira', subtitle: 'Pull en laine mérinos côtelé',
-    description: 'Pull en laine mérinos doux côtelé. Col roulé, coupe ajustée. Très chaud et confortable. 100% laine mérinos.',
-    price: 245.00, original_price: null, category: 'vetements', subcategory: 'pulls',
-    sizes: '["XS","S","M","L","XL"]', colors: '["Camel","Ivoire","Noir","Bordeaux"]',
-    stock: 100, is_new: 1, is_sale: 0,
-    image_url: IMG(),
-  },
-  {
-    name: 'Gilet Doux', subtitle: 'Gilet long en mohair mélangé',
-    description: 'Gilet long en mohair et soie. Coupe oversize, poches plaquées. Fermeture boutonnée.',
-    price: 285.00, original_price: null, category: 'vetements', subcategory: 'gilets',
-    sizes: '["XS/S","M/L","XL/XXL"]', colors: '["Rose poudré","Blanc cassé","Kaki"]',
-    stock: 100, is_new: 0, is_sale: 0,
-    image_url: IMG(),
-  },
-  // ── Pantalons & Jupes ────────────────────────────────────────────────────
-  {
-    name: 'Pantalon Wide', subtitle: 'Pantalon large à pinces',
-    description: 'Pantalon taille haute à larges pinces. Coupe évasée, tissu fluide en viscose et lin.',
-    price: 265.00, original_price: null, category: 'vetements', subcategory: 'pantalons',
-    sizes: '["34","36","38","40","42"]', colors: '["Beige","Blanc","Noir","Camel"]',
-    stock: 100, is_new: 0, is_sale: 0,
-    image_url: IMG(),
-  },
-  {
-    name: 'Bermuda Pollux', subtitle: 'Bermuda en cuir de chèvre',
-    description: 'Bermuda taille haute en cuir de chèvre souple. Coupe droite, poches italiennes, fermeture zip.',
-    price: 425.00, original_price: null, category: 'vetements', subcategory: 'pantalons',
-    sizes: '["34","36","38","40","42","44"]', colors: '["Acajou","Noir","Cognac"]',
-    stock: 100, is_new: 1, is_sale: 0,
-    image_url: IMG(),
-  },
-  {
-    name: 'Jupe Maëva', subtitle: 'Jupe mi-longue en satin',
-    description: 'Jupe midi taille haute en satin de polyester. Légèrement évasée, avec fente devant.',
-    price: 215.00, original_price: 285.00, category: 'vetements', subcategory: 'jupes',
-    sizes: '["XS","S","M","L","XL"]', colors: '["Champagne","Noir","Blush"]',
-    stock: 100, is_new: 0, is_sale: 1,
-    image_url: IMG(),
-  },
-  {
-    name: 'Jupe Aurore', subtitle: 'Jupe plissée en mousseline',
-    description: 'Jupe longue plissée en mousseline de soie. Taille élastiquée, très fluide, légère.',
-    price: 195.00, original_price: null, category: 'vetements', subcategory: 'jupes',
-    sizes: '["XS","S","M","L","XL"]', colors: '["Blanc","Rose pâle","Vert menthe"]',
-    stock: 100, is_new: 1, is_sale: 0,
-    image_url: IMG(),
-  },
-  // ── Robes ────────────────────────────────────────────────────────────────
-  {
-    name: 'Robe Éclat', subtitle: 'Robe mi-longue en crêpe',
-    description: 'Robe mi-longue en crêpe de viscose. Col V plongeant, ceinture à nouer, légèrement évasée.',
-    price: 295.00, original_price: null, category: 'robes', subcategory: 'robes-mi-longues',
-    sizes: '["XS","S","M","L","XL"]', colors: '["Noir","Terracotta","Vert sauge"]',
-    stock: 100, is_new: 1, is_sale: 0,
-    image_url: IMG(),
-  },
-  {
-    name: 'Robe Minuit', subtitle: 'Robe longue en velours',
-    description: 'Robe longue en velours. Coupe droite légèrement évasée vers le bas. Bretelles fines ajustables.',
-    price: 385.00, original_price: null, category: 'robes', subcategory: 'robes-longues',
-    sizes: '["XS","S","M","L"]', colors: '["Noir","Bordeaux","Bleu nuit"]',
-    stock: 100, is_new: 0, is_sale: 0,
-    image_url: IMG(),
-  },
-  {
-    name: 'Robe Dolce', subtitle: 'Robe courte en lin',
-    description: 'Robe courte en lin et coton. Col chemise, boutonnage devant, ceinture à nouer.',
-    price: 225.00, original_price: 320.00, category: 'robes', subcategory: 'robes-courtes',
-    sizes: '["XS","S","M","L","XL"]', colors: '["Blanc","Kaki","Sable"]',
-    stock: 100, is_new: 0, is_sale: 1,
-    image_url: IMG(),
-  },
-  {
-    name: 'Robe Céleste', subtitle: 'Robe portefeuille en crêpe',
-    description: 'Robe portefeuille fluide en crêpe de viscose. Col V, ceinture à nouer, manches longues.',
-    price: 255.00, original_price: null, category: 'robes', subcategory: 'robes-mi-longues',
-    sizes: '["XS","S","M","L","XL"]', colors: '["Bleu canard","Ivoire","Vieux rose"]',
-    stock: 100, is_new: 1, is_sale: 0,
-    image_url: IMG(),
-  },
-  // ── Manteaux & Vestes ────────────────────────────────────────────────────
-  {
-    name: 'Veste Vili', subtitle: 'Veste col ouvert nocturne',
-    description: 'Veste en laine mélangée. Col ouvert, poches plaquées, doublée intérieur. Fermeture boutonnée.',
-    price: 335.00, original_price: null, category: 'manteaux', subcategory: 'vestes',
-    sizes: '["XS","S","M","L","XL"]', colors: '["Noir","Camel","Gris chiné"]',
-    stock: 100, is_new: 1, is_sale: 0,
-    image_url: IMG(),
-  },
-  {
-    name: 'Manteau Altitude', subtitle: 'Manteau long en laine bouclée',
-    description: 'Grand manteau long en laine bouclée. Revers larges, poches à rabat, ceinture. Doublure en satin.',
-    price: 595.00, original_price: null, category: 'manteaux', subcategory: 'manteaux',
-    sizes: '["XS","S","M","L"]', colors: '["Écru","Camel","Noir"]',
-    stock: 100, is_new: 1, is_sale: 0,
-    image_url: IMG(),
-  },
-  {
-    name: 'Blouson Bobby', subtitle: 'Blouson teddy en laine nocturne',
-    description: 'Blouson style teddy en laine bouclée. Col montant, fermeture zippée, poches zippées latérales.',
-    price: 485.00, original_price: null, category: 'manteaux', subcategory: 'blousons',
-    sizes: '["XS","S","M","L","XL"]', colors: '["Noir","Blanc cassé"]',
-    stock: 100, is_new: 0, is_sale: 0,
-    image_url: IMG(),
-  },
-  {
-    name: 'Veste Amazone', subtitle: 'Veste en cuir grainé',
-    description: 'Veste en cuir grainé de qualité supérieure. Col tailleur, fermeture boutonnée, poches intérieures.',
-    price: 695.00, original_price: 895.00, category: 'manteaux', subcategory: 'vestes',
-    sizes: '["XS","S","M","L"]', colors: '["Noir","Cognac"]',
-    stock: 100, is_new: 0, is_sale: 1,
-    image_url: IMG(),
-  },
-  // ── Accessoires ──────────────────────────────────────────────────────────
-  {
-    name: 'Sac Édith', subtitle: 'Sac à main structuré en cuir',
-    description: 'Sac à main structuré en cuir veau souple. Deux anses, bandoulière amovible.',
-    price: 345.00, original_price: null, category: 'accessoires', subcategory: 'sacs',
-    sizes: '["Unique"]', colors: '["Noir","Camel","Blanc"]',
-    stock: 100, is_new: 1, is_sale: 0,
-    image_url: IMG(),
-  },
-  {
-    name: 'Ceinture Lara', subtitle: 'Ceinture en cuir tressé',
-    description: 'Ceinture large en cuir tressé. Boucle dorée. Ajustable, plusieurs trous.',
-    price: 95.00, original_price: null, category: 'accessoires', subcategory: 'ceintures',
-    sizes: '["S/M","M/L","L/XL"]', colors: '["Noir","Cognac","Blanc"]',
-    stock: 100, is_new: 0, is_sale: 0,
-    image_url: IMG(),
-  },
-  {
-    name: 'Foulard Soie', subtitle: 'Foulard en soie imprimé',
-    description: 'Foulard carré en soie pure. Imprimé floral exclusif.',
-    price: 145.00, original_price: null, category: 'accessoires', subcategory: 'foulards',
-    sizes: '["90x90cm"]', colors: '["Fleuri multicolore","Géométrique bleu","Abstrait rouge"]',
-    stock: 100, is_new: 1, is_sale: 0,
-    image_url: IMG(),
-  },
-  {
-    name: 'Chapeau Capri', subtitle: 'Chapeau de paille tressée',
-    description: 'Chapeau à larges bords en paille naturelle tressée. Ruban en satin. Protection UV.',
-    price: 125.00, original_price: 175.00, category: 'accessoires', subcategory: 'chapeaux',
-    sizes: '["S/M","L/XL"]', colors: '["Naturel","Noir"]',
-    stock: 100, is_new: 0, is_sale: 1,
-    image_url: IMG(),
-  },
-];
+  // Produits (image_url = null par défaut, à ajouter via admin)
+  const products = [
+    ['Top Trinity',      'Top à rayures en viscose',        'Top fluide en viscose à rayures horizontales. Col rond, manches courtes. Coupe légèrement cintrée. Composition : 100% viscose.',   195.00, null,   'vetements', 'tops',      '["XS","S","M","L","XL"]',       '["Blanc","Marine","Beige"]',    100, 1, 0],
+    ['Top Tendresse',    'Rib Top avec col contrasté',       'Top en maille côtelée avec col contrasté. Ajusté, met en valeur la silhouette. Composition : 95% coton, 5% élasthanne.',          185.00, null,   'vetements', 'tops',      '["XS","S","M","L","XL","XXL"]', '["Vert","Crème","Noir"]',       100, 1, 0],
+    ['Blouse Lyric',     'Blouse en soie naturelle',         'Blouse en soie naturelle fluide. Col V, boutonnage devant, manches longues avec poignets boutonnés. 100% soie.',                  245.00, null,   'vetements', 'tops',      '["XS","S","M","L"]',            '["Ivoire","Blush","Noir"]',     100, 1, 0],
+    ['Pull Mira',        'Pull en laine mérinos côtelé',     'Pull en laine mérinos doux côtelé. Col roulé, coupe ajustée. Très chaud et confortable. 100% laine mérinos.',                    245.00, null,   'vetements', 'pulls',     '["XS","S","M","L","XL"]',       '["Camel","Ivoire","Noir","Bordeaux"]', 100, 1, 0],
+    ['Gilet Doux',       'Gilet long en mohair mélangé',     'Gilet long en mohair et soie. Coupe oversize, poches plaquées. Fermeture boutonnée.',                                            285.00, null,   'vetements', 'gilets',    '["XS/S","M/L","XL/XXL"]',       '["Rose poudré","Blanc cassé","Kaki"]', 100, 0, 0],
+    ['Pantalon Wide',    'Pantalon large à pinces',          'Pantalon taille haute à larges pinces. Coupe évasée, tissu fluide en viscose et lin.',                                            265.00, null,   'vetements', 'pantalons', '["34","36","38","40","42"]',     '["Beige","Blanc","Noir","Camel"]', 100, 0, 0],
+    ['Bermuda Pollux',   'Bermuda en cuir de chèvre',        'Bermuda taille haute en cuir de chèvre souple. Coupe droite, poches italiennes, fermeture zip.',                                  425.00, null,   'vetements', 'pantalons', '["34","36","38","40","42","44"]','["Acajou","Noir","Cognac"]',    100, 1, 0],
+    ['Jupe Maëva',       'Jupe mi-longue en satin',          'Jupe midi taille haute en satin de polyester. Légèrement évasée, avec fente devant.',                                            215.00, 285.00, 'vetements', 'jupes',     '["XS","S","M","L","XL"]',       '["Champagne","Noir","Blush"]',  100, 0, 1],
+    ['Jupe Aurore',      'Jupe plissée en mousseline',       'Jupe longue plissée en mousseline de soie. Taille élastiquée, très fluide, légère.',                                             195.00, null,   'vetements', 'jupes',     '["XS","S","M","L","XL"]',       '["Blanc","Rose pâle","Vert menthe"]', 100, 1, 0],
+    ['Robe Éclat',       'Robe mi-longue en crêpe',          'Robe mi-longue en crêpe de viscose. Col V plongeant, ceinture à nouer, légèrement évasée.',                                      295.00, null,   'robes',     'robes-mi-longues', '["XS","S","M","L","XL"]', '["Noir","Terracotta","Vert sauge"]', 100, 1, 0],
+    ['Robe Minuit',      'Robe longue en velours',           'Robe longue en velours. Coupe droite légèrement évasée vers le bas. Bretelles fines ajustables.',                               385.00, null,   'robes',     'robes-longues', '["XS","S","M","L"]',       '["Noir","Bordeaux","Bleu nuit"]', 100, 0, 0],
+    ['Robe Dolce',       'Robe courte en lin',               'Robe courte en lin et coton. Col chemise, boutonnage devant, ceinture à nouer.',                                                 225.00, 320.00, 'robes',     'robes-courtes', '["XS","S","M","L","XL"]',  '["Blanc","Kaki","Sable"]',      100, 0, 1],
+    ['Robe Céleste',     'Robe portefeuille en crêpe',       'Robe portefeuille fluide en crêpe de viscose. Col V, ceinture à nouer, manches longues.',                                        255.00, null,   'robes',     'robes-mi-longues', '["XS","S","M","L","XL"]', '["Bleu canard","Ivoire","Vieux rose"]', 100, 1, 0],
+    ['Veste Vili',       'Veste col ouvert nocturne',        'Veste en laine mélangée. Col ouvert, poches plaquées, doublée intérieur. Fermeture boutonnée.',                                  335.00, null,   'manteaux',  'vestes',    '["XS","S","M","L","XL"]',       '["Noir","Camel","Gris chiné"]', 100, 1, 0],
+    ['Manteau Altitude', 'Manteau long en laine bouclée',    'Grand manteau long en laine bouclée. Revers larges, poches à rabat, ceinture. Doublure en satin.',                               595.00, null,   'manteaux',  'manteaux',  '["XS","S","M","L"]',            '["Écru","Camel","Noir"]',       100, 1, 0],
+    ['Blouson Bobby',    'Blouson teddy en laine nocturne',  'Blouson style teddy en laine bouclée. Col montant, fermeture zippée, poches zippées latérales.',                                 485.00, null,   'manteaux',  'blousons',  '["XS","S","M","L","XL"]',       '["Noir","Blanc cassé"]',        100, 0, 0],
+    ['Veste Amazone',    'Veste en cuir grainé',             'Veste en cuir grainé de qualité supérieure. Col tailleur, fermeture boutonnée, poches intérieures.',                             695.00, 895.00, 'manteaux',  'vestes',    '["XS","S","M","L"]',            '["Noir","Cognac"]',             100, 0, 1],
+    ['Sac Édith',        'Sac à main structuré en cuir',     'Sac à main structuré en cuir veau souple. Deux anses, bandoulière amovible.',                                                    345.00, null,   'accessoires','sacs',     '["Unique"]',                    '["Noir","Camel","Blanc"]',      100, 1, 0],
+    ['Ceinture Lara',    'Ceinture en cuir tressé',          'Ceinture large en cuir tressé. Boucle dorée. Ajustable, plusieurs trous.',                                                        95.00, null,   'accessoires','ceintures', '["S/M","M/L","L/XL"]',          '["Noir","Cognac","Blanc"]',     100, 0, 0],
+    ['Foulard Soie',     'Foulard en soie imprimé',          'Foulard carré en soie pure. Imprimé floral exclusif.',                                                                           145.00, null,   'accessoires','foulards',  '["90x90cm"]',                   '["Fleuri multicolore","Géométrique bleu","Abstrait rouge"]', 100, 1, 0],
+    ['Chapeau Capri',    'Chapeau de paille tressée',        'Chapeau à larges bords en paille naturelle tressée. Ruban en satin. Protection UV.',                                             125.00, 175.00, 'accessoires','chapeaux',  '["S/M","L/XL"]',                '["Naturel","Noir"]',            100, 0, 1],
+  ];
 
-products.forEach(p => db.products.insert(p));
+  for (const p of products) {
+    await query(
+      `INSERT INTO products (name,subtitle,description,price,original_price,category,subcategory,sizes,colors,stock,is_new,is_sale,images,image_url)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,'[]',null)`,
+      p
+    );
+  }
 
-// Adresse par défaut pour l'utilisateur test
-db.addresses.insert({
-  user_id: 2, type: 'shipping', first_name: 'Marie', last_name: 'Dupont',
-  address: '12 rue de la Paix', address2: '', city: 'Paris',
-  postal_code: '75001', country: 'France', is_default: 1,
-});
+  // Adresse par défaut pour l'utilisateur test
+  await query(
+    'INSERT INTO addresses (user_id,type,first_name,last_name,address,address2,city,postal_code,country,is_default) VALUES (2,$1,$2,$3,$4,$5,$6,$7,$8,$9)',
+    ['shipping','Marie','Dupont','12 rue de la Paix','','Paris','75001','France',1]
+  );
 
-console.log(`✓ ${products.length} produits insérés avec photos`);
-console.log('✓ Utilisateurs : admin@elegance.fr / admin123 | user@test.fr / user123');
-console.log('✓ Base de données JSON prête !');
+  console.log(`✓ ${products.length} produits insérés`);
+  console.log('✓ Utilisateurs : admin@elegance.fr / admin123 | user@test.fr / user123');
+  console.log('✓ Base PostgreSQL (Neon) prête !');
+  process.exit(0);
+}
 
+seed().catch(err => { console.error('Erreur seed:', err); process.exit(1); });
