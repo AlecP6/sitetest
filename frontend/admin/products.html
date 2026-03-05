@@ -184,17 +184,26 @@
     let debTimer;
     const _pMap = {}; // Stockage des produits par ID pour les actions edit/delete
 
-    if (!checkAdminAuth()) {
-      throw new Error('Non autorisé');
-    }
-    renderSidebar('products');
-    buildPhotoSlots([]);   // initialiser les slots vides
-    loadProducts().then(() => {
-      // Ouvrir la modal d'ajout si demandé depuis le dashboard
-      if (sessionStorage.getItem('openAddProduct')) {
-        sessionStorage.removeItem('openAddProduct');
-        openAdd();
-      }
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!checkAdminAuth()) return; // redirige vers login si non connecté
+
+      try { renderSidebar('products'); } catch(e) { console.error('Sidebar:', e); }
+      try { buildPhotoSlots([]); } catch(e) { console.error('PhotoSlots:', e); }
+
+      loadProducts()
+        .then(() => {
+          if (sessionStorage.getItem('openAddProduct')) {
+            sessionStorage.removeItem('openAddProduct');
+            openAdd();
+          }
+        })
+        .catch(err => {
+          const tbody = document.getElementById('products-body');
+          if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--danger)">
+            Erreur de chargement : ${err.message}<br>
+            <small style="color:var(--muted)">Vérifiez la configuration du serveur et les variables d'environnement.</small>
+          </td></tr>`;
+        });
     });
 
     function debounceLoad() {

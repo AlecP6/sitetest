@@ -127,8 +127,12 @@
 
   <script src="js/admin.js"></script>
   <script>
-    const user = checkAdminAuth();
-    if (user) { renderSidebar('dashboard'); loadDashboard(); }
+    document.addEventListener('DOMContentLoaded', function() {
+      const user = checkAdminAuth();
+      if (!user) return;
+      renderSidebar('dashboard');
+      loadDashboard();
+    });
 
     async function loadDashboard() {
       try {

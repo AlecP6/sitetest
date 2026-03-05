@@ -30,19 +30,32 @@ function adminLogout() {
   window.location.href = '../login.html';
 }
 
-// ── API fetch ────────────────────────────────────────────────────────────────
+// ── API fetch (avec timeout 15s) ─────────────────────────────────────────────
 async function apiFetch(endpoint, options = {}) {
-  const res = await fetch(`${API}${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getToken()}`,
-      ...(options.headers || {}),
-    },
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Erreur serveur');
-  return data;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+  try {
+    const res = await fetch(`${API}${endpoint}`, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`,
+        ...(options.headers || {}),
+      },
+    });
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); }
+    catch { throw new Error(`Réponse invalide du serveur (${res.status}): ${text.slice(0, 100)}`); }
+    if (!res.ok) throw new Error(data.error || `Erreur ${res.status}`);
+    return data;
+  } catch (err) {
+    if (err.name === 'AbortError') throw new Error('Délai dépassé — le serveur ne répond pas');
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 // ── Formatters ───────────────────────────────────────────────────────────────

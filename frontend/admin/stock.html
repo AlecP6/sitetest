@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -114,9 +114,11 @@
     let pendingChanges = {};
     let debTimer;
 
-    checkAdminAuth();
-    renderSidebar('stock');
-    loadStock();
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!checkAdminAuth()) return;
+      renderSidebar('stock');
+      loadStock();
+    });
 
     function debounceLoad() { clearTimeout(debTimer); debTimer = setTimeout(loadStock, 350); }
 

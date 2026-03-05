@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -115,9 +115,11 @@
     let totalOrders = 0;
     let debTimer;
 
-    checkAdminAuth();
-    renderSidebar('orders');
-    loadOrders();
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!checkAdminAuth()) return;
+      renderSidebar('orders');
+      loadOrders();
+    });
 
     function debounceLoad() { clearTimeout(debTimer); debTimer = setTimeout(loadOrders, 350); }
 

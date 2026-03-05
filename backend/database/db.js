@@ -4,10 +4,17 @@
  */
 const { Pool } = require('pg');
 
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL manquant — vérifiez les variables d\'environnement Vercel.');
+}
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
-  max: 10,
+  ssl: { rejectUnauthorized: false },
+  max: 5,
+  connectionTimeoutMillis: 8000,   // échoue après 8s au lieu de pendre
+  idleTimeoutMillis:       30000,
+  allowExitOnIdle:         true,
 });
 
 /**
