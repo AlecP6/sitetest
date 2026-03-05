@@ -1,0 +1,29 @@
+# Dépendances
+node_modules/
+
+# Variables d'environnement (ne jamais commiter)
+.env
+.env.local
+.env.*.local
+
+# Base de données locale (données runtime)
+backend/data/
+
+# Uploads utilisateur (images uploadées en production)
+frontend/images/products/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Système
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln

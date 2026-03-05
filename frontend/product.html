@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Produit — ÉLÉGANCE</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="header-container"></div>
+
+  <main class="product-page">
+    <div class="container">
+
+      <!-- Fil d'Ariane -->
+      <nav class="category-breadcrumb" id="product-breadcrumb">
+        <a href="index.html">Accueil</a>
+        <span class="breadcrumb-sep">›</span>
+        <a href="category.html" id="bc-category">Catalogue</a>
+        <span class="breadcrumb-sep">›</span>
+        <span id="bc-product">Produit</span>
+      </nav>
+
+      <!-- Layout produit -->
+      <div class="product-layout" id="product-content">
+        <!-- Galerie -->
+        <div class="product-gallery">
+          <div class="product-gallery-main">
+            <div id="main-image" class="gallery-main-inner"></div>
+          </div>
+          <div class="product-gallery-thumbs" id="gallery-thumbs"></div>
+        </div>
+
+        <!-- Informations -->
+        <div class="product-info">
+          <!-- Badges -->
+          <div style="display:flex;gap:0.5rem;margin-bottom:1rem" id="product-badges"></div>
+
+          <!-- Nom & Prix -->
+          <h1 class="product-info-name" id="product-name">Chargement…</h1>
+          <p class="product-info-subtitle" id="product-subtitle"></p>
+          <div class="product-info-price" id="product-price"></div>
+
+          <!-- Couleur -->
+          <div class="product-colors" id="color-section">
+            <div class="product-colors-label">
+              Couleur <span id="selected-color-label"></span>
+            </div>
+            <div class="color-options" id="color-options"></div>
+          </div>
+
+          <!-- Taille -->
+          <div class="product-sizes">
+            <div class="product-sizes-label">
+              Taille <span id="selected-size-label"></span>
+              <span class="size-guide-link" onclick="openSizeGuide()">Guide des tailles</span>
+            </div>
+            <div class="size-options" id="size-options"></div>
+            <p class="form-error hidden" id="size-error">Veuillez sélectionner une taille</p>
+          </div>
+
+          <!-- Boutons -->
+          <div class="product-add-cart">
+            <button class="btn btn-primary btn-lg" id="add-to-cart-btn" onclick="addToCart()">
+              Ajouter au panier
+            </button>
+            <button class="product-add-wish" id="wishlist-btn" onclick="handleWishlist()" title="Ajouter aux favoris">
+              <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.5">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Livraison rapide -->
+          <div style="background:var(--color-bg-alt);padding:1rem;margin-bottom:1.5rem;font-size:0.78rem;color:var(--color-text-light)">
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5;display:inline;vertical-align:middle;margin-right:6px"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            Livraison gratuite dès 100€ • Retours gratuits sous 30 jours
+          </div>
+
+          <!-- Accordéon -->
+          <div class="product-accordion" id="product-accordion">
+            <div class="accordion-item open">
+              <button class="accordion-btn" onclick="toggleAccordion(this)">
+                Description
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+              <div class="accordion-content">
+                <p id="product-description">Chargement de la description…</p>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-btn" onclick="toggleAccordion(this)">
+                Composition & Entretien
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+              <div class="accordion-content">
+                <p>Consultez l'étiquette du vêtement pour les instructions précises d'entretien. En règle générale : lavage à 30°C en programme délicat, ne pas utiliser de sèche-linge, repassage à basse température à l'envers.</p>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-btn" onclick="toggleAccordion(this)">
+                Livraison & Retours
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+              <div class="accordion-content">
+                <p>
+                  <strong>Livraison standard</strong> : 3 à 5 jours ouvrés — 5,90€ (gratuite dès 100€)<br><br>
+                  <strong>Livraison express</strong> : 24h — 12,90€<br><br>
+                  <strong>Retours</strong> : 30 jours pour retourner votre article. Retours gratuits par colis prépayé.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Produits similaires -->
+      <section class="products-section" style="padding-top:4rem">
+        <div class="products-header">
+          <h2 class="section-title" style="margin-bottom:0">Vous aimerez <span>aussi</span></h2>
+          <a href="#" id="related-link" class="btn-link">Voir plus</a>
+        </div>
+        <div class="products-grid" id="related-grid">
+          <div class="skeleton" style="aspect-ratio:2/3"></div>
+          <div class="skeleton" style="aspect-ratio:2/3"></div>
+          <div class="skeleton" style="aspect-ratio:2/3"></div>
+          <div class="skeleton" style="aspect-ratio:2/3"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Modal Guide des Tailles -->
+  <div class="modal-overlay" id="size-guide-modal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeSizeGuide()">
+        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <h3>Guide des Tailles</h3>
+      <table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-top:1rem">
+        <thead>
+          <tr style="border-bottom:2px solid var(--color-border)">
+            <th style="text-align:left;padding:0.6rem;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase">Taille</th>
+            <th style="padding:0.6rem;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase">Poitrine (cm)</th>
+            <th style="padding:0.6rem;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase">Taille (cm)</th>
+            <th style="padding:0.6rem;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase">Hanches (cm)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--color-border)"><td style="padding:0.7rem">XS / 34</td><td style="text-align:center;padding:0.7rem">78-80</td><td style="text-align:center;padding:0.7rem">60-62</td><td style="text-align:center;padding:0.7rem">86-88</td></tr>
+          <tr style="border-bottom:1px solid var(--color-border)"><td style="padding:0.7rem">S / 36</td><td style="text-align:center;padding:0.7rem">82-84</td><td style="text-align:center;padding:0.7rem">64-66</td><td style="text-align:center;padding:0.7rem">90-92</td></tr>
+          <tr style="border-bottom:1px solid var(--color-border)"><td style="padding:0.7rem">M / 38</td><td style="text-align:center;padding:0.7rem">86-88</td><td style="text-align:center;padding:0.7rem">68-70</td><td style="text-align:center;padding:0.7rem">94-96</td></tr>
+          <tr style="border-bottom:1px solid var(--color-border)"><td style="padding:0.7rem">L / 40</td><td style="text-align:center;padding:0.7rem">90-92</td><td style="text-align:center;padding:0.7rem">72-74</td><td style="text-align:center;padding:0.7rem">98-100</td></tr>
+          <tr style="border-bottom:1px solid var(--color-border)"><td style="padding:0.7rem">XL / 42</td><td style="text-align:center;padding:0.7rem">94-96</td><td style="text-align:center;padding:0.7rem">76-78</td><td style="text-align:center;padding:0.7rem">102-104</td></tr>
+          <tr><td style="padding:0.7rem">XXL / 44</td><td style="text-align:center;padding:0.7rem">98-100</td><td style="text-align:center;padding:0.7rem">80-82</td><td style="text-align:center;padding:0.7rem">106-108</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.75rem;color:var(--color-text-light);margin-top:1.2rem;line-height:1.7">En cas de doute entre deux tailles, nous vous recommandons de choisir la taille supérieure. Pour plus d'informations, contactez notre service client.</p>
+    </div>
+  </div>
+
+  <div id="footer-container"></div>
+
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    let currentProduct = null;
+    let selectedSize = '';
+    let selectedColor = '';
+
+    async function loadProduct() {
+      const id = getUrlParam('id');
+      if (!id) { window.location.href = 'category.html'; return; }
+
+      try {
+        currentProduct = await Api.products.get(id);
+        renderProduct(currentProduct);
+        loadRelated(id, currentProduct.category);
+        document.title = `${currentProduct.name} — ÉLÉGANCE`;
+      } catch (e) {
+        document.getElementById('product-content').innerHTML = `
+          <div style="grid-column:1/-1;text-align:center;padding:5rem">
+            <p style="font-family:var(--font-serif);font-size:2rem;margin-bottom:1rem">Produit non trouvé</p>
+            <a href="category.html" class="btn btn-secondary">Retour au catalogue</a>
+          </div>`;
+      }
+    }
+
+    // Toutes les images du produit (tableau de 1 à 3 URLs)
+    let galleryImages = [];
+
+    // Fonds neutres de remplacement quand il n'y a pas d'image
+    const FALLBACK_BKGS = [
+      'linear-gradient(160deg,#1a1a1a,#2d2d2d)',
+      'linear-gradient(135deg,#2d3a2e,#4a6a50)',
+      'linear-gradient(135deg,#2a1f2d,#3d2a45)',
+    ];
+
+    function renderGallery(images) {
+      // images = tableau de URLs (peut être vide)
+      const mainEl  = document.getElementById('main-image');
+      const thumbEl = document.getElementById('gallery-thumbs');
+
+      galleryImages = (images && images.length) ? images : [];
+
+      // ── Image principale ──
+      setMainImage(0);
+
+      // ── Vignettes ──
+      // Toujours 3 vignettes : vraies photos si dispo, sinon fond neutre
+      thumbEl.innerHTML = Array.from({ length: 3 }, (_, i) => {
+        const url = galleryImages[i] || '';
+        const inner = url
+          ? `<img src="${url}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">`
+          : `<div style="width:100%;height:100%;background:${FALLBACK_BKGS[i]}"></div>`;
+        return `
+          <div class="product-gallery-thumb ${i === 0 ? 'active' : ''}" onclick="selectThumb(this, ${i})" style="cursor:pointer">
+            ${inner}
+          </div>`;
+      }).join('');
+    }
+
+    function setMainImage(idx) {
+      const mainEl = document.getElementById('main-image');
+      const url    = galleryImages[idx] || '';
+      if (url) {
+        mainEl.innerHTML = `<img src="${url}" alt="${currentProduct ? currentProduct.name : ''}" style="width:100%;height:100%;object-fit:cover;display:block">`;
+      } else {
+        mainEl.innerHTML = `<div style="width:100%;height:100%;background:${FALLBACK_BKGS[idx % 3]}"></div>`;
+      }
+    }
+
+    function renderProduct(p) {
+      // Breadcrumb
+      document.getElementById('bc-product').textContent = p.name;
+      const bcCat = document.getElementById('bc-category');
+      bcCat.textContent = p.category.charAt(0).toUpperCase() + p.category.slice(1);
+      bcCat.href = `category.html?category=${p.category}`;
+
+      // Galerie (images[] en priorité, compat image_url)
+      const imgs = Array.isArray(p.images) && p.images.length ? p.images
+                   : (p.image_url ? [p.image_url] : []);
+      renderGallery(imgs);
+
+      // Badges
+      let badges = '';
+      if (p.is_new) badges += '<span class="badge badge-new">Nouveau</span>';
+      if (p.is_sale) badges += '<span class="badge badge-sale">Soldes</span>';
+      document.getElementById('product-badges').innerHTML = badges;
+
+      // Nom & sous-titre
+      document.getElementById('product-name').textContent = p.name;
+      document.getElementById('product-subtitle').textContent = p.subtitle || '';
+
+      // Prix
+      const hasDiscount = p.original_price && p.original_price > p.price;
+      document.getElementById('product-price').innerHTML = `
+        <span class="price ${hasDiscount ? 'price-sale' : ''}">${formatPrice(p.price)}</span>
+        ${hasDiscount ? `<span class="price-original">${formatPrice(p.original_price)}</span>` : ''}
+      `;
+
+      // Description
+      document.getElementById('product-description').textContent = p.description || 'Aucune description disponible.';
+
+      // Couleurs
+      const colors = p.colors || [];
+      if (colors.length) {
+        document.getElementById('color-options').innerHTML = colors.map(c => `
+          <div class="color-option" onclick="selectColor('${c}', this)">${c}</div>
+        `).join('');
+        selectColor(colors[0], document.querySelector('.color-option'));
+      } else {
+        document.getElementById('color-section').style.display = 'none';
+      }
+
+      // Tailles
+      const sizes = p.sizes || [];
+      document.getElementById('size-options').innerHTML = sizes.map(s => `
+        <div class="size-option" onclick="selectSize('${s}', this)">${s}</div>
+      `).join('');
+
+      // Related link
+      document.getElementById('related-link').href = `category.html?category=${p.category}`;
+    }
+
+    function selectColor(color, el) {
+      document.querySelectorAll('.color-option').forEach(o => o.classList.remove('active'));
+      el.classList.add('active');
+      selectedColor = color;
+      document.getElementById('selected-color-label').textContent = color;
+    }
+
+    function selectSize(size, el) {
+      document.querySelectorAll('.size-option').forEach(o => o.classList.remove('active'));
+      el.classList.add('active');
+      selectedSize = size;
+      document.getElementById('selected-size-label').textContent = size;
+      document.getElementById('size-error').classList.add('hidden');
+    }
+
+    function selectThumb(thumb, idx) {
+      document.querySelectorAll('.product-gallery-thumb').forEach(t => t.classList.remove('active'));
+      thumb.classList.add('active');
+      setMainImage(idx);
+    }
+
+    function addToCart() {
+      if (!currentProduct) return;
+      if (!selectedSize && currentProduct.sizes && currentProduct.sizes.length > 0) {
+        document.getElementById('size-error').classList.remove('hidden');
+        document.getElementById('size-options').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      Cart.addLocal(currentProduct, 1, selectedSize, selectedColor);
+      Toast.success(`"${currentProduct.name}" ajouté au panier`);
+    }
+
+    async function handleWishlist() {
+      if (!Auth.isLoggedIn()) {
+        Toast.show('Connectez-vous pour sauvegarder vos favoris');
+        setTimeout(() => window.location.href = 'login.html', 1500);
+        return;
+      }
+      try {
+        await Api.auth.addToWishlist(currentProduct.id);
+        document.getElementById('wishlist-btn').style.background = 'black';
+        document.getElementById('wishlist-btn').style.color = 'white';
+        Toast.success('Ajouté aux favoris');
+      } catch {
+        await Api.auth.removeFromWishlist(currentProduct.id);
+        document.getElementById('wishlist-btn').style.background = '';
+        document.getElementById('wishlist-btn').style.color = '';
+        Toast.show('Retiré des favoris');
+      }
+    }
+
+    async function loadRelated(id, category) {
+      try {
+        const related = await Api.products.related(id);
+        const grid = document.getElementById('related-grid');
+        if (related.length) {
+          grid.innerHTML = related.map(createProductCard).join('');
+        } else {
+          grid.closest('section').style.display = 'none';
+        }
+      } catch {}
+    }
+
+    function toggleAccordion(btn) {
+      const item = btn.closest('.accordion-item');
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    }
+
+    function openSizeGuide() {
+      document.getElementById('size-guide-modal').classList.add('open');
+    }
+    function closeSizeGuide() {
+      document.getElementById('size-guide-modal').classList.remove('open');
+    }
+    document.getElementById('size-guide-modal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeSizeGuide();
+    });
+
+    loadProduct();
+  </script>
+</body>
+</html>

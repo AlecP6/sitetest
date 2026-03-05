@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commande Confirmée — ÉLÉGANCE</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="header-container"></div>
+
+  <main class="confirmation-page">
+    <div class="container-sm">
+
+      <!-- Étapes -->
+      <div class="checkout-steps" style="margin-bottom:3rem">
+        <div class="checkout-step done">
+          <div class="step-number">✓</div>
+          <span>Livraison</span>
+        </div>
+        <div class="step-divider"></div>
+        <div class="checkout-step done">
+          <div class="step-number">✓</div>
+          <span>Paiement</span>
+        </div>
+        <div class="step-divider"></div>
+        <div class="checkout-step active">
+          <div class="step-number">3</div>
+          <span>Confirmation</span>
+        </div>
+      </div>
+
+      <div class="confirmation-icon">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+
+      <h1>Commande confirmée</h1>
+      <p>Merci pour votre achat ! Votre commande a bien été enregistrée.</p>
+      <p style="margin-top:0.3rem">Un email de confirmation a été envoyé à <strong id="order-email">votre adresse</strong>.</p>
+
+      <div class="order-number-display">
+        Numéro de commande : <strong id="order-number">—</strong>
+      </div>
+
+      <!-- Récapitulatif commande -->
+      <div class="confirmation-summary" id="order-summary">
+        <div style="font-size:0.65rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:1.2rem;padding-bottom:0.8rem;border-bottom:1px solid var(--color-border)">Détails de la commande</div>
+        <div id="order-items" style="margin-bottom:1.2rem"></div>
+        <div style="border-top:1px solid var(--color-border);padding-top:1rem">
+          <div class="summary-row"><span>Sous-total</span><span id="order-subtotal">—</span></div>
+          <div class="summary-row"><span>Livraison</span><span id="order-shipping">—</span></div>
+          <div class="summary-row total"><span>Total payé</span><span id="order-total">—</span></div>
+        </div>
+
+        <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--color-border)">
+          <div style="font-size:0.65rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.8rem">Adresse de livraison</div>
+          <div id="order-address" style="font-size:0.82rem;font-weight:300;line-height:1.8"></div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:1rem;margin-top:2.5rem">
+        <a href="category.html" class="btn btn-primary btn-lg">Continuer mes achats</a>
+        <a href="orders.html" class="btn-link" id="orders-link" style="display:none">Voir mes commandes</a>
+      </div>
+
+      <!-- Infos livraison -->
+      <div style="margin-top:3rem;padding:1.5rem;background:var(--color-bg-alt);text-align:left">
+        <div style="font-size:0.65rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:1rem">Prochaines étapes</div>
+        <div style="display:flex;flex-direction:column;gap:0.8rem">
+          <div style="display:flex;gap:1rem;align-items:flex-start">
+            <div style="width:24px;height:24px;background:var(--color-black);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:600;flex-shrink:0">1</div>
+            <div>
+              <div style="font-size:0.75rem;font-weight:500;margin-bottom:0.2rem">Email de confirmation</div>
+              <div style="font-size:0.75rem;color:var(--color-text-light);font-weight:300">Vous recevrez un email avec les détails de votre commande</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:1rem;align-items:flex-start">
+            <div style="width:24px;height:24px;background:var(--color-black);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:600;flex-shrink:0">2</div>
+            <div>
+              <div style="font-size:0.75rem;font-weight:500;margin-bottom:0.2rem">Préparation (1-2 jours)</div>
+              <div style="font-size:0.75rem;color:var(--color-text-light);font-weight:300">Votre commande est préparée avec soin dans nos entrepôts</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:1rem;align-items:flex-start">
+            <div style="width:24px;height:24px;background:var(--color-black);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:600;flex-shrink:0">3</div>
+            <div>
+              <div style="font-size:0.75rem;font-weight:500;margin-bottom:0.2rem">Expédition (3-5 jours)</div>
+              <div style="font-size:0.75rem;color:var(--color-text-light);font-weight:300">Vous recevrez un email avec un numéro de suivi</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', async () => {
+      const orderNumber = getUrlParam('order');
+      if (orderNumber) {
+        document.getElementById('order-number').textContent = orderNumber;
+      }
+
+      if (Auth.isLoggedIn()) {
+        document.getElementById('orders-link').style.display = 'block';
+      }
+
+      // Essayer de charger les détails de la commande
+      if (orderNumber) {
+        try {
+          const order = await Api.orders.get(orderNumber);
+          document.getElementById('order-email').textContent = order.email;
+
+          document.getElementById('order-items').innerHTML = order.items.map(item => `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--color-border)">
+              <div>
+                <div style="font-family:var(--font-serif);font-size:0.95rem">${item.product_name}</div>
+                <div style="font-size:0.72rem;color:var(--color-text-light)">${[item.color, item.size].filter(Boolean).join(' · ')} × ${item.quantity}</div>
+              </div>
+              <div style="font-size:0.85rem;font-weight:400">${formatPrice(item.product_price * item.quantity)}</div>
+            </div>
+          `).join('');
+
+          document.getElementById('order-subtotal').textContent = formatPrice(order.subtotal);
+          document.getElementById('order-shipping').textContent = order.shipping_cost === 0 ? 'Offerte' : formatPrice(order.shipping_cost);
+          document.getElementById('order-total').textContent = formatPrice(order.total);
+
+          const addr = order.shipping_address;
+          document.getElementById('order-address').innerHTML = `
+            ${addr.first_name} ${addr.last_name}<br>
+            ${addr.address}${addr.address2 ? ', ' + addr.address2 : ''}<br>
+            ${addr.postal_code} ${addr.city}, ${addr.country}
+          `;
+        } catch (e) {
+          // En mode démo, afficher un récap générique
+          document.getElementById('order-items').innerHTML = '<p class="text-light" style="font-size:0.82rem;font-style:italic">Détails disponibles dans votre espace compte</p>';
+        }
+      }
+    });
+  </script>
+</body>
+</html>

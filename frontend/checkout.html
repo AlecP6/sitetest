@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commande — ÉLÉGANCE</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="header-container"></div>
+
+  <main class="checkout-page">
+    <div class="container-sm">
+
+      <!-- Étapes -->
+      <div class="checkout-steps">
+        <div class="checkout-step active">
+          <div class="step-number">1</div>
+          <span>Livraison</span>
+        </div>
+        <div class="step-divider"></div>
+        <div class="checkout-step">
+          <div class="step-number">2</div>
+          <span>Paiement</span>
+        </div>
+        <div class="step-divider"></div>
+        <div class="checkout-step">
+          <div class="step-number">3</div>
+          <span>Confirmation</span>
+        </div>
+      </div>
+
+      <div class="checkout-layout">
+        <!-- Formulaire adresse -->
+        <div class="checkout-form-section">
+
+          <!-- Email -->
+          <div class="checkout-section-title">Informations de contact</div>
+          <div class="form-group">
+            <label for="email">Email *</label>
+            <input type="email" id="email" placeholder="votre@email.fr" required>
+          </div>
+
+          <!-- Adresse de livraison -->
+          <div class="checkout-section-title" style="margin-top:2rem">Adresse de livraison</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="first-name">Prénom *</label>
+              <input type="text" id="first-name" required>
+            </div>
+            <div class="form-group">
+              <label for="last-name">Nom *</label>
+              <input type="text" id="last-name" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="address">Adresse *</label>
+            <input type="text" id="address" placeholder="Numéro et nom de rue" required>
+          </div>
+          <div class="form-group">
+            <label for="address2">Complément d'adresse</label>
+            <input type="text" id="address2" placeholder="Appartement, bâtiment, code d'accès…">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="postal-code">Code postal *</label>
+              <input type="text" id="postal-code" required>
+            </div>
+            <div class="form-group">
+              <label for="city">Ville *</label>
+              <input type="text" id="city" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="country">Pays *</label>
+            <select id="country">
+              <option value="France">France</option>
+              <option value="Belgique">Belgique</option>
+              <option value="Suisse">Suisse</option>
+              <option value="Luxembourg">Luxembourg</option>
+              <option value="Canada">Canada</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="phone">Téléphone</label>
+            <input type="tel" id="phone" placeholder="Pour la livraison">
+          </div>
+
+          <!-- Adresse facturation -->
+          <div style="margin-bottom:1.5rem">
+            <div class="checkbox-group">
+              <input type="checkbox" id="billing-same" checked onchange="toggleBillingAddress()">
+              <label for="billing-same">L'adresse de facturation est identique à l'adresse de livraison</label>
+            </div>
+          </div>
+
+          <div id="billing-section" class="hidden">
+            <div class="checkout-section-title">Adresse de facturation</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Prénom</label>
+                <input type="text" id="billing-first-name">
+              </div>
+              <div class="form-group">
+                <label>Nom</label>
+                <input type="text" id="billing-last-name">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Adresse</label>
+              <input type="text" id="billing-address">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Code postal</label>
+                <input type="text" id="billing-postal">
+              </div>
+              <div class="form-group">
+                <label>Ville</label>
+                <input type="text" id="billing-city">
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="form-group">
+            <label for="notes">Notes de commande (optionnel)</label>
+            <textarea id="notes" placeholder="Instructions spéciales pour la livraison…" rows="3"></textarea>
+          </div>
+
+          <p class="form-error hidden" id="form-error"></p>
+
+          <button class="btn btn-primary btn-full btn-lg" onclick="goToPayment()" style="margin-top:1rem">
+            Continuer vers le paiement →
+          </button>
+        </div>
+
+        <!-- Récapitulatif commande -->
+        <div class="checkout-order-recap">
+          <h3 style="font-family:var(--font-sans);font-size:0.7rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:1.5rem">Votre commande</h3>
+
+          <div id="recap-items"></div>
+
+          <div class="summary-row" style="margin-top:1rem">
+            <span>Sous-total</span>
+            <span id="recap-subtotal">—</span>
+          </div>
+          <div class="summary-row">
+            <span>Livraison</span>
+            <span id="recap-shipping">—</span>
+          </div>
+          <div class="summary-row total">
+            <span>Total</span>
+            <span id="recap-total">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // Pré-remplir si connecté
+    window.addEventListener('DOMContentLoaded', async () => {
+      const items = Cart.getLocal();
+      if (!items.length) { window.location.href = 'cart.html'; return; }
+
+      renderRecap(items);
+
+      if (Auth.isLoggedIn()) {
+        const user = Auth.getUser();
+        document.getElementById('email').value = user.email;
+        document.getElementById('first-name').value = user.first_name;
+        document.getElementById('last-name').value = user.last_name;
+
+        try {
+          const addresses = await Api.auth.getAddresses();
+          const defaultAddr = addresses.find(a => a.is_default);
+          if (defaultAddr) {
+            document.getElementById('address').value = defaultAddr.address;
+            document.getElementById('address2').value = defaultAddr.address2 || '';
+            document.getElementById('city').value = defaultAddr.city;
+            document.getElementById('postal-code').value = defaultAddr.postal_code;
+            document.getElementById('country').value = defaultAddr.country;
+          }
+        } catch {}
+      }
+    });
+
+    function renderRecap(items) {
+      const subtotal = items.reduce((s, i) => s + i.unit_price * i.quantity, 0);
+      const shipping = subtotal >= 100 ? 0 : 5.90;
+      const total = subtotal + shipping;
+
+      document.getElementById('recap-items').innerHTML = items.map(item => `
+        <div class="checkout-recap-item">
+          <div class="checkout-recap-img">
+            <div style="width:100%;height:100%;background:var(--color-green)"></div>
+            <span class="qty-badge">${item.quantity}</span>
+          </div>
+          <div>
+            <div class="checkout-recap-name">${item.name}</div>
+            <div class="checkout-recap-variant">${[item.color, item.size].filter(Boolean).join(' · ')}</div>
+          </div>
+          <div class="checkout-recap-price">${formatPrice(item.unit_price * item.quantity)}</div>
+        </div>
+      `).join('');
+
+      document.getElementById('recap-subtotal').textContent = formatPrice(subtotal);
+      document.getElementById('recap-shipping').textContent = shipping === 0 ? 'Offerte' : formatPrice(shipping);
+      document.getElementById('recap-total').textContent = formatPrice(total);
+    }
+
+    function toggleBillingAddress() {
+      const same = document.getElementById('billing-same').checked;
+      document.getElementById('billing-section').classList.toggle('hidden', same);
+    }
+
+    function goToPayment() {
+      const email = document.getElementById('email').value.trim();
+      const firstName = document.getElementById('first-name').value.trim();
+      const lastName = document.getElementById('last-name').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const city = document.getElementById('city').value.trim();
+      const postalCode = document.getElementById('postal-code').value.trim();
+      const errorEl = document.getElementById('form-error');
+
+      if (!email || !firstName || !lastName || !address || !city || !postalCode) {
+        errorEl.textContent = 'Veuillez remplir tous les champs obligatoires (*)';
+        errorEl.classList.remove('hidden');
+        errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errorEl.textContent = 'Adresse email invalide';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+
+      const same = document.getElementById('billing-same').checked;
+      const shippingAddress = {
+        first_name: firstName,
+        last_name: lastName,
+        address,
+        address2: document.getElementById('address2').value.trim(),
+        city,
+        postal_code: postalCode,
+        country: document.getElementById('country').value,
+      };
+      const billingAddress = same ? shippingAddress : {
+        first_name: document.getElementById('billing-first-name').value.trim(),
+        last_name: document.getElementById('billing-last-name').value.trim(),
+        address: document.getElementById('billing-address').value.trim(),
+        city: document.getElementById('billing-city').value.trim(),
+        postal_code: document.getElementById('billing-postal').value.trim(),
+        country: document.getElementById('country').value,
+      };
+
+      sessionStorage.setItem('checkout_data', JSON.stringify({
+        email,
+        shipping_address: shippingAddress,
+        billing_address: billingAddress,
+        notes: document.getElementById('notes').value.trim(),
+      }));
+
+      window.location.href = 'payment.html';
+    }
+  </script>
+</body>
+</html>

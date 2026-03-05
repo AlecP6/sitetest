@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nous contacter — ÉLÉGANCE</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="header-container"></div>
+
+  <main style="padding:3rem 0 5rem">
+    <div class="container-sm">
+
+      <nav class="category-breadcrumb">
+        <a href="index.html">Accueil</a>
+        <span class="breadcrumb-sep">›</span>
+        <span>Nous contacter</span>
+      </nav>
+
+      <h1 style="font-family:var(--font-serif);font-size:2.5rem;font-weight:400;margin-bottom:0.5rem">Nous <span style="font-style:italic">contacter</span></h1>
+      <p style="color:var(--color-text-light);margin-bottom:3rem;font-size:0.85rem">Notre équipe est disponible pour répondre à toutes vos questions</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start">
+
+        <!-- Formulaire -->
+        <div>
+          <div style="font-size:0.68rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:1.5rem;padding-bottom:0.8rem;border-bottom:1px solid var(--color-border)">Envoyer un message</div>
+
+          <div class="form-group">
+            <label for="contact-subject">Sujet *</label>
+            <select id="contact-subject">
+              <option value="">Sélectionnez un sujet</option>
+              <option value="commande">Question sur une commande</option>
+              <option value="livraison">Livraison</option>
+              <option value="retour">Retour / Remboursement</option>
+              <option value="produit">Information produit</option>
+              <option value="compte">Mon compte</option>
+              <option value="autre">Autre</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="contact-first-name">Prénom *</label>
+              <input type="text" id="contact-first-name">
+            </div>
+            <div class="form-group">
+              <label for="contact-last-name">Nom *</label>
+              <input type="text" id="contact-last-name">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="contact-email">Email *</label>
+            <input type="email" id="contact-email" placeholder="votre@email.fr">
+          </div>
+
+          <div class="form-group">
+            <label for="contact-order">Numéro de commande (si applicable)</label>
+            <input type="text" id="contact-order" placeholder="ELG-20250101-0001">
+          </div>
+
+          <div class="form-group">
+            <label for="contact-message">Message *</label>
+            <textarea id="contact-message" rows="6" placeholder="Décrivez votre demande en détail…"></textarea>
+          </div>
+
+          <p class="form-error hidden" id="contact-error"></p>
+          <p class="form-success hidden" id="contact-success">
+            Votre message a bien été envoyé. Nous vous répondrons dans les plus brefs délais.
+          </p>
+
+          <button class="btn btn-primary btn-lg" onclick="sendContact()">Envoyer le message</button>
+        </div>
+
+        <!-- Infos contact -->
+        <div>
+          <div style="font-size:0.68rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:1.5rem;padding-bottom:0.8rem;border-bottom:1px solid var(--color-border)">Nos coordonnées</div>
+
+          <div style="display:flex;flex-direction:column;gap:1.5rem">
+
+            <div style="display:flex;gap:1rem;align-items:flex-start">
+              <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5;flex-shrink:0;margin-top:2px"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.99 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.9 1.19h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <div>
+                <div style="font-size:0.72rem;font-weight:500;margin-bottom:0.3rem">Téléphone</div>
+                <p style="font-size:0.85rem;font-weight:300;color:var(--color-text-light)">+33 (0)1 23 45 67 89</p>
+                <p style="font-size:0.75rem;font-weight:300;color:var(--color-text-light)">Lun–Ven : 9h–20h | Sam–Dim : 10h–18h</p>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:1rem;align-items:flex-start">
+              <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5;flex-shrink:0;margin-top:2px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <div>
+                <div style="font-size:0.72rem;font-weight:500;margin-bottom:0.3rem">Email</div>
+                <p style="font-size:0.85rem;font-weight:300;color:var(--color-text-light)">contact@elegance.fr</p>
+                <p style="font-size:0.75rem;font-weight:300;color:var(--color-text-light)">Réponse sous 24–48h ouvrées</p>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:1rem;align-items:flex-start">
+              <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5;flex-shrink:0;margin-top:2px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <div>
+                <div style="font-size:0.72rem;font-weight:500;margin-bottom:0.3rem">Adresse</div>
+                <p style="font-size:0.85rem;font-weight:300;color:var(--color-text-light)">12 rue de la Mode<br>75001 Paris, France</p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Délais de réponse -->
+          <div style="background:var(--color-bg-alt);padding:1.5rem;margin-top:2rem">
+            <div style="font-size:0.65rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:1rem">Délais de traitement</div>
+            <div style="display:flex;flex-direction:column;gap:0.6rem">
+              <div style="display:flex;justify-content:space-between;font-size:0.78rem;font-weight:300">
+                <span>Commandes / paiement</span>
+                <strong>Sous 2h</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:0.78rem;font-weight:300">
+                <span>Livraison / suivi</span>
+                <strong>Sous 4h</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:0.78rem;font-weight:300">
+                <span>Retours / remboursements</span>
+                <strong>Sous 24h</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:0.78rem;font-weight:300">
+                <span>Autres demandes</span>
+                <strong>Sous 48h</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Liens rapides -->
+          <div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:0.5rem">
+            <a href="faq.html" class="btn btn-secondary btn-sm" style="text-align:center">Consulter la FAQ</a>
+            <a href="orders.html" class="btn btn-secondary btn-sm" style="text-align:center">Suivre ma commande</a>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <div id="footer-container"></div>
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // Pré-remplir si connecté
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = Auth.getUser();
+      if (user) {
+        document.getElementById('contact-first-name').value = user.first_name;
+        document.getElementById('contact-last-name').value = user.last_name;
+        document.getElementById('contact-email').value = user.email;
+      }
+    });
+
+    function sendContact() {
+      const subject = document.getElementById('contact-subject').value;
+      const firstName = document.getElementById('contact-first-name').value.trim();
+      const lastName = document.getElementById('contact-last-name').value.trim();
+      const email = document.getElementById('contact-email').value.trim();
+      const message = document.getElementById('contact-message').value.trim();
+      const errorEl = document.getElementById('contact-error');
+      const successEl = document.getElementById('contact-success');
+
+      errorEl.classList.add('hidden');
+      successEl.classList.add('hidden');
+
+      if (!subject || !firstName || !lastName || !email || !message) {
+        errorEl.textContent = 'Veuillez remplir tous les champs obligatoires (*)';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errorEl.textContent = 'Adresse email invalide';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+
+      // Simulation d'envoi
+      const btn = event.target;
+      btn.disabled = true;
+      btn.textContent = 'Envoi en cours…';
+      setTimeout(() => {
+        successEl.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = 'Envoyer le message';
+        document.getElementById('contact-message').value = '';
+        document.getElementById('contact-subject').value = '';
+        document.getElementById('contact-order').value = '';
+      }, 1000);
+    }
+  </script>
+</body>
+</html>

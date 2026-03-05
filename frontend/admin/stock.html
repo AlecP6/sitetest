@@ -1,0 +1,280 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stocks — Admin ÉLÉGANCE</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <div id="admin-sidebar"></div>
+
+    <main class="admin-main">
+      <div class="admin-topbar">
+        <h1>Gestion des stocks</h1>
+        <div class="topbar-user">
+          <div class="topbar-avatar" id="topbar-avatar">AD</div>
+          <span id="topbar-name">Admin</span>
+        </div>
+      </div>
+
+      <div class="admin-content">
+
+        <!-- Summary cards -->
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.25rem">
+          <div class="stat-card c-accent">
+            <div class="stat-label">Total produits</div>
+            <div class="stat-value" id="s-total">—</div>
+          </div>
+          <div class="stat-card c-warning">
+            <div class="stat-label">Stock faible (< 10)</div>
+            <div class="stat-value" id="s-low">—</div>
+          </div>
+          <div class="stat-card c-danger">
+            <div class="stat-label">Rupture de stock</div>
+            <div class="stat-value" id="s-zero">—</div>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <!-- Toolbar -->
+          <div class="table-toolbar">
+            <div class="search-wrap">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="search-input" placeholder="Rechercher un produit…" oninput="debounceLoad()">
+            </div>
+            <select id="cat-filter" class="form-control" style="width:auto;padding:0.45rem 0.7rem" onchange="loadStock()">
+              <option value="">Toutes catégories</option>
+              <option value="vetements">Vêtements</option>
+              <option value="robes">Robes</option>
+              <option value="manteaux">Manteaux</option>
+              <option value="accessoires">Accessoires</option>
+            </select>
+            <label class="form-check" style="white-space:nowrap">
+              <input type="checkbox" id="low-only" onchange="loadStock()">
+              <span style="font-size:0.82rem">Stock faible uniquement</span>
+            </label>
+            <span id="count-label" style="color:var(--muted);font-size:0.8rem;margin-left:auto"></span>
+            <button class="btn-a btn-success" id="save-all-btn" onclick="saveAllStocks()" style="display:none">
+              ✓ Enregistrer les modifications
+            </button>
+          </div>
+
+          <!-- Table -->
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Produit</th>
+                  <th>Catégorie</th>
+                  <th>Prix</th>
+                  <th>Stock actuel</th>
+                  <th>Niveau</th>
+                  <th style="text-align:right">Mettre à jour</th>
+                </tr>
+              </thead>
+              <tbody id="stock-body">
+                <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted)">Chargement…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ── Modal MAJ stock individuel ──────────────────────── -->
+  <div class="modal-overlay" id="stock-modal">
+    <div class="modal" style="max-width:400px">
+      <div class="modal-header">
+        <h2 class="modal-title">Mettre à jour le stock</h2>
+        <button class="modal-close" onclick="closeModal('stock-modal')">×</button>
+      </div>
+      <div class="modal-body">
+        <p id="stock-product-name" style="font-weight:600;margin-bottom:1rem"></p>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Nouveau stock *</label>
+          <input type="number" id="stock-value" class="form-control" min="0" style="font-size:1.25rem;text-align:center">
+          <div class="form-hint">Saisir la quantité totale disponible</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-a btn-secondary" onclick="closeModal('stock-modal')">Annuler</button>
+        <button class="btn-a btn-primary" id="save-stock-btn">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    let stockData = [];
+    let pendingChanges = {};
+    let debTimer;
+
+    checkAdminAuth();
+    renderSidebar('stock');
+    loadStock();
+
+    function debounceLoad() { clearTimeout(debTimer); debTimer = setTimeout(loadStock, 350); }
+
+    async function loadStock() {
+      const search   = document.getElementById('search-input').value.trim();
+      const category = document.getElementById('cat-filter').value;
+      const lowOnly  = document.getElementById('low-only').checked;
+      const tbody    = document.getElementById('stock-body');
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted)">Chargement…</td></tr>`;
+
+      try {
+        const params = new URLSearchParams();
+        if (search)   params.set('search', search);
+        if (category) params.set('category', category);
+        if (lowOnly)  params.set('low_stock', '1');
+
+        const data = await apiFetch(`/admin/stock?${params}`);
+        stockData = data.stock;
+        pendingChanges = {};
+        updateSaveBtn();
+
+        document.getElementById('count-label').textContent = `${data.total} produit${data.total > 1 ? 's' : ''}`;
+
+        // Summary (always fetch all for counts)
+        const all = await apiFetch('/admin/stock');
+        document.getElementById('s-total').textContent = all.total;
+        document.getElementById('s-low').textContent   = all.stock.filter(p => p.stock > 0 && p.stock < 10).length;
+        document.getElementById('s-zero').textContent  = all.stock.filter(p => p.stock === 0).length;
+
+        if (!stockData.length) {
+          tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">◫</div><p>Aucun produit trouvé</p></div></td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = stockData.map(p => {
+          const lvl  = p.stock === 0 ? 'empty' : p.stock < 10 ? 'low' : 'ok';
+          const lbl  = p.stock === 0 ? 'Rupture' : p.stock < 10 ? 'Faible' : 'Correct';
+          const pct  = Math.min(Math.round((p.stock / 100) * 100), 100);
+          return `
+            <tr id="row-${p.id}">
+              <td style="color:var(--muted);font-size:0.75rem">#${p.id}</td>
+              <td>
+                <strong>${escHtml(p.name)}</strong>
+                ${p.subtitle ? `<br><small style="color:var(--muted)">${escHtml(p.subtitle)}</small>` : ''}
+              </td>
+              <td style="text-transform:capitalize">${p.category}</td>
+              <td>${fmtEur(p.price)}</td>
+              <td>
+                <strong id="stock-display-${p.id}">${p.stock}</strong>
+              </td>
+              <td>
+                <div class="stock-bar-wrap">
+                  <div class="stock-bar">
+                    <div class="stock-bar-fill fill-${lvl}" id="bar-${p.id}" style="width:${pct}%"></div>
+                  </div>
+                  <span class="badge badge-${lvl}" id="badge-${p.id}">${lbl}</span>
+                </div>
+              </td>
+              <td style="text-align:right">
+                <button class="btn-a btn-primary btn-sm" onclick="openStockModal(${p.id}, '${escHtml(p.name).replace(/'/g,"\\'") }', ${p.stock})">
+                  Modifier
+                </button>
+              </td>
+            </tr>`;
+        }).join('');
+
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--danger)">${err.message}</td></tr>`;
+      }
+    }
+
+    // ── Modal stock ──
+    let stockModalTarget = null;
+    function openStockModal(id, name, currentStock) {
+      stockModalTarget = id;
+      document.getElementById('stock-product-name').textContent = name;
+      document.getElementById('stock-value').value = currentStock;
+      document.getElementById('save-stock-btn').onclick = doSaveStock;
+      openModal('stock-modal');
+      setTimeout(() => document.getElementById('stock-value').select(), 100);
+    }
+
+    async function doSaveStock() {
+      if (stockModalTarget === null) return;
+      const val = parseInt(document.getElementById('stock-value').value);
+      if (isNaN(val) || val < 0) { toast('Valeur de stock invalide', 'error'); return; }
+
+      const saveBtn = document.getElementById('save-stock-btn');
+      saveBtn.disabled = true;
+      try {
+        await apiFetch(`/admin/stock/${stockModalTarget}`, {
+          method: 'PUT', body: JSON.stringify({ stock: val }),
+        });
+        toast('Stock mis à jour ✓', 'success');
+        closeModal('stock-modal');
+        updateRowDisplay(stockModalTarget, val);
+      } catch (err) {
+        toast(err.message, 'error');
+      } finally {
+        saveBtn.disabled = false;
+        stockModalTarget = null;
+      }
+    }
+
+    function updateRowDisplay(id, newStock) {
+      const displayEl = document.getElementById(`stock-display-${id}`);
+      const barEl     = document.getElementById(`bar-${id}`);
+      const badgeEl   = document.getElementById(`badge-${id}`);
+      if (!displayEl) return;
+
+      displayEl.textContent = newStock;
+      const lvl = newStock === 0 ? 'empty' : newStock < 10 ? 'low' : 'ok';
+      const lbl = newStock === 0 ? 'Rupture' : newStock < 10 ? 'Faible' : 'Correct';
+      const pct = Math.min(Math.round((newStock / 100) * 100), 100);
+
+      if (barEl) {
+        barEl.className = `stock-bar-fill fill-${lvl}`;
+        barEl.style.width = `${pct}%`;
+      }
+      if (badgeEl) {
+        badgeEl.className = `badge badge-${lvl}`;
+        badgeEl.textContent = lbl;
+      }
+
+      // Update summary counts
+      const all = stockData.map(p => p.id === id ? { ...p, stock: newStock } : p);
+      stockData = all;
+      document.getElementById('s-low').textContent  = all.filter(p => p.stock > 0 && p.stock < 10).length;
+      document.getElementById('s-zero').textContent = all.filter(p => p.stock === 0).length;
+    }
+
+    function updateSaveBtn() {
+      document.getElementById('save-all-btn').style.display =
+        Object.keys(pendingChanges).length ? 'inline-flex' : 'none';
+    }
+
+    async function saveAllStocks() {
+      const ids = Object.keys(pendingChanges);
+      if (!ids.length) return;
+      const btn = document.getElementById('save-all-btn');
+      btn.disabled = true;
+      let ok = 0, fail = 0;
+      for (const id of ids) {
+        try {
+          await apiFetch(`/admin/stock/${id}`, { method: 'PUT', body: JSON.stringify({ stock: pendingChanges[id] }) });
+          ok++;
+        } catch { fail++; }
+      }
+      pendingChanges = {};
+      updateSaveBtn();
+      if (ok)   toast(`${ok} stock(s) mis à jour ✓`, 'success');
+      if (fail) toast(`${fail} erreur(s)`, 'error');
+      btn.disabled = false;
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+  </script>
+</body>
+</html>

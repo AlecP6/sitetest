@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion — ÉLÉGANCE</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="header-container"></div>
+
+  <main class="auth-page">
+    <div class="auth-container">
+
+      <div class="auth-logo">
+        <a href="index.html">ÉLÉGANCE</a>
+      </div>
+
+      <!-- Onglets -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchTab('login')">Connexion</button>
+        <button class="auth-tab" onclick="switchTab('register')">Créer un compte</button>
+      </div>
+
+      <!-- Formulaire Connexion -->
+      <div class="auth-form active" id="login-form">
+        <div class="form-group">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" placeholder="votre@email.fr" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label for="login-password">
+            Mot de passe
+            <a href="forgot-password.html" style="font-weight:300;text-transform:none;letter-spacing:0;float:right;font-size:0.72rem;color:var(--color-text-light);text-decoration:underline">Mot de passe oublié ?</a>
+          </label>
+          <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <div class="checkbox-group" style="margin-bottom:1.5rem">
+          <input type="checkbox" id="remember-me">
+          <label for="remember-me">Se souvenir de moi</label>
+        </div>
+        <p class="form-error hidden" id="login-error"></p>
+        <button class="btn btn-primary btn-full btn-lg" id="login-btn" onclick="handleLogin()">
+          Se connecter
+        </button>
+
+        <div class="auth-divider"><span>ou</span></div>
+
+        <div style="text-align:center;font-size:0.8rem;color:var(--color-text-light)">
+          <p style="margin-bottom:0.5rem">Compte de démonstration :</p>
+          <p style="font-size:0.75rem">Email : <strong>user@test.fr</strong></p>
+          <p style="font-size:0.75rem">Mot de passe : <strong>user123</strong></p>
+        </div>
+      </div>
+
+      <!-- Formulaire Inscription -->
+      <div class="auth-form" id="register-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="reg-first-name">Prénom *</label>
+            <input type="text" id="reg-first-name" autocomplete="given-name">
+          </div>
+          <div class="form-group">
+            <label for="reg-last-name">Nom *</label>
+            <input type="text" id="reg-last-name" autocomplete="family-name">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="reg-email">Email *</label>
+          <input type="email" id="reg-email" placeholder="votre@email.fr" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label for="reg-password">Mot de passe * <span style="font-weight:300;text-transform:none;letter-spacing:0;font-size:0.7rem;color:var(--color-text-light)">(min. 6 caractères)</span></label>
+          <input type="password" id="reg-password" placeholder="••••••••" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label for="reg-password-confirm">Confirmer le mot de passe *</label>
+          <input type="password" id="reg-password-confirm" placeholder="••••••••" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label for="reg-phone">Téléphone</label>
+          <input type="tel" id="reg-phone" placeholder="06 00 00 00 00">
+        </div>
+        <div class="checkbox-group" style="margin-bottom:1.5rem">
+          <input type="checkbox" id="accept-terms" required>
+          <label for="accept-terms">J'accepte les <a href="legal.html#cgv" target="_blank" style="text-decoration:underline">CGV</a> et la <a href="legal.html#confidentialite" target="_blank" style="text-decoration:underline">Politique de confidentialité</a></label>
+        </div>
+        <div class="checkbox-group" style="margin-bottom:1.5rem">
+          <input type="checkbox" id="newsletter-optin">
+          <label for="newsletter-optin">Je souhaite recevoir les offres et nouveautés par email</label>
+        </div>
+        <p class="form-error hidden" id="register-error"></p>
+        <button class="btn btn-primary btn-full btn-lg" id="register-btn" onclick="handleRegister()">
+          Créer mon compte
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // Rediriger si déjà connecté
+    if (Auth.isLoggedIn()) {
+      const redirect = new URLSearchParams(window.location.search).get('redirect');
+      const user = Auth.getUser();
+      if (user && user.role === 'admin') {
+        window.location.href = redirect || 'admin/dashboard.html';
+      } else {
+        window.location.href = redirect || 'account.html';
+      }
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.auth-tab').forEach((t, i) => {
+        t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
+      });
+      document.getElementById('login-form').classList.toggle('active', tab === 'login');
+      document.getElementById('register-form').classList.toggle('active', tab === 'register');
+    }
+
+    async function handleLogin() {
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const errorEl = document.getElementById('login-error');
+      const btn = document.getElementById('login-btn');
+
+      if (!email || !password) {
+        errorEl.textContent = 'Email et mot de passe requis';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Connexion…';
+      errorEl.classList.add('hidden');
+
+      try {
+        const data = await Auth.login(email, password);
+        // Les admins vont directement au panel d'administration
+        if (data.user && data.user.role === 'admin') {
+          window.location.href = 'admin/dashboard.html';
+        } else {
+          const redirect = getUrlParam('redirect') || 'account.html';
+          window.location.href = redirect;
+        }
+      } catch (e) {
+        errorEl.textContent = e.message;
+        errorEl.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = 'Se connecter';
+      }
+    }
+
+    async function handleRegister() {
+      const firstName = document.getElementById('reg-first-name').value.trim();
+      const lastName = document.getElementById('reg-last-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const confirm = document.getElementById('reg-password-confirm').value;
+      const phone = document.getElementById('reg-phone').value.trim();
+      const terms = document.getElementById('accept-terms').checked;
+      const errorEl = document.getElementById('register-error');
+      const btn = document.getElementById('register-btn');
+
+      if (!firstName || !lastName || !email || !password) {
+        errorEl.textContent = 'Veuillez remplir tous les champs obligatoires';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      if (password !== confirm) {
+        errorEl.textContent = 'Les mots de passe ne correspondent pas';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      if (password.length < 6) {
+        errorEl.textContent = 'Le mot de passe doit contenir au moins 6 caractères';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      if (!terms) {
+        errorEl.textContent = 'Vous devez accepter les CGV pour créer un compte';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Création…';
+      errorEl.classList.add('hidden');
+
+      try {
+        await Auth.register({ first_name: firstName, last_name: lastName, email, password, phone });
+        window.location.href = 'account.html';
+      } catch (e) {
+        errorEl.textContent = e.message;
+        errorEl.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = 'Créer mon compte';
+      }
+    }
+
+    // Connexion au Enter
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const activeForm = document.querySelector('.auth-form.active');
+        if (activeForm.id === 'login-form') handleLogin();
+        else handleRegister();
+      }
+    });
+  </script>
+</body>
+</html>

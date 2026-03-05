@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catalogue — ÉLÉGANCE</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="header-container"></div>
+
+  <main class="category-page">
+    <div class="container">
+
+      <!-- Fil d'Ariane -->
+      <nav class="category-breadcrumb">
+        <a href="index.html">Accueil</a>
+        <span class="breadcrumb-sep">›</span>
+        <span id="breadcrumb-current">Catalogue</span>
+      </nav>
+
+      <!-- En-tête catégorie -->
+      <div class="category-header">
+        <h1 id="category-title">Catalogue</h1>
+        <p class="category-count" id="product-count">Chargement…</p>
+      </div>
+
+      <!-- Toolbar filtres + tri -->
+      <div class="category-toolbar">
+        <button class="filter-btn" id="filter-toggle">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5">
+            <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/>
+          </svg>
+          Filtrer
+        </button>
+        <div style="display:flex;align-items:center;gap:1rem">
+          <span style="font-size:0.7rem;font-weight:300;color:var(--color-text-light)" id="toolbar-count"></span>
+          <select class="sort-select" id="sort-select">
+            <option value="">Trier par : Recommandés</option>
+            <option value="newest">Nouveautés</option>
+            <option value="price_asc">Prix croissant</option>
+            <option value="price_desc">Prix décroissant</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Grille produits -->
+      <div class="products-grid" id="products-grid">
+        <div class="skeleton" style="aspect-ratio:2/3"></div>
+        <div class="skeleton" style="aspect-ratio:2/3"></div>
+        <div class="skeleton" style="aspect-ratio:2/3"></div>
+        <div class="skeleton" style="aspect-ratio:2/3"></div>
+        <div class="skeleton" style="aspect-ratio:2/3"></div>
+        <div class="skeleton" style="aspect-ratio:2/3"></div>
+        <div class="skeleton" style="aspect-ratio:2/3"></div>
+        <div class="skeleton" style="aspect-ratio:2/3"></div>
+      </div>
+
+      <!-- Pagination -->
+      <div id="pagination" style="text-align:center;margin-top:3rem"></div>
+    </div>
+  </main>
+
+  <!-- Panneau filtres -->
+  <div class="filters-sidebar" id="filters-sidebar">
+    <div class="filters-sidebar-header">
+      <h3>Filtres</h3>
+      <button class="icon-btn" id="filter-close">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Catégorie -->
+    <div class="filter-group">
+      <h4>Catégorie</h4>
+      <div class="filter-options">
+        <div class="filter-option" data-filter="category" data-value="">Tout</div>
+        <div class="filter-option" data-filter="category" data-value="vetements">Vêtements</div>
+        <div class="filter-option" data-filter="category" data-value="robes">Robes</div>
+        <div class="filter-option" data-filter="category" data-value="manteaux">Manteaux & Vestes</div>
+        <div class="filter-option" data-filter="category" data-value="accessoires">Accessoires</div>
+      </div>
+    </div>
+
+    <!-- Taille -->
+    <div class="filter-group">
+      <h4>Taille</h4>
+      <div class="filter-options">
+        <div class="filter-option" data-filter="size" data-value="XS">XS</div>
+        <div class="filter-option" data-filter="size" data-value="S">S</div>
+        <div class="filter-option" data-filter="size" data-value="M">M</div>
+        <div class="filter-option" data-filter="size" data-value="L">L</div>
+        <div class="filter-option" data-filter="size" data-value="XL">XL</div>
+        <div class="filter-option" data-filter="size" data-value="36">36</div>
+        <div class="filter-option" data-filter="size" data-value="38">38</div>
+        <div class="filter-option" data-filter="size" data-value="40">40</div>
+        <div class="filter-option" data-filter="size" data-value="42">42</div>
+      </div>
+    </div>
+
+    <!-- Promotions -->
+    <div class="filter-group">
+      <h4>Offres spéciales</h4>
+      <div class="filter-options">
+        <div class="filter-option" data-filter="is_new" data-value="1">Nouveautés</div>
+        <div class="filter-option" data-filter="is_sale" data-value="1">Soldes</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:0.8rem;margin-top:1.5rem">
+      <button class="btn btn-primary btn-full" id="apply-filters">Voir les résultats</button>
+    </div>
+    <button class="btn-link" id="reset-filters" style="margin-top:1rem;display:block;text-align:center">Réinitialiser</button>
+  </div>
+  <div class="mobile-menu-overlay" id="filters-overlay"></div>
+
+  <div id="footer-container"></div>
+
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    let filters = {
+      category: params.get('category') || '',
+      subcategory: params.get('subcategory') || '',
+      search: params.get('search') || '',
+      is_new: params.get('is_new') || '',
+      is_sale: params.get('is_sale') || '',
+      sort: '',
+    };
+
+    const CATEGORY_LABELS = {
+      vetements: 'Vêtements',
+      robes: 'Robes & Combinaisons',
+      manteaux: 'Manteaux & Vestes',
+      accessoires: 'Accessoires',
+      nouveautes: 'Nouveautés',
+    };
+
+    function updatePageTitle() {
+      const title = document.getElementById('category-title');
+      const bc = document.getElementById('breadcrumb-current');
+      if (filters.search) {
+        title.textContent = `Résultats pour "${filters.search}"`;
+        bc.textContent = 'Recherche';
+      } else if (filters.is_sale === '1') {
+        title.textContent = 'Soldes';
+        bc.textContent = 'Soldes';
+      } else if (filters.is_new === '1' || filters.category === 'nouveautes') {
+        title.textContent = 'Nouveautés';
+        bc.textContent = 'Nouveautés';
+      } else if (filters.category) {
+        const lbl = CATEGORY_LABELS[filters.category] || filters.category;
+        title.textContent = lbl;
+        bc.textContent = lbl;
+      }
+    }
+
+    async function loadProducts() {
+      const grid = document.getElementById('products-grid');
+      grid.innerHTML = '<div class="skeleton" style="aspect-ratio:2/3"></div>'.repeat(8);
+
+      try {
+        const query = {};
+        if (filters.category && filters.category !== 'nouveautes') query.category = filters.category;
+        if (filters.subcategory) query.subcategory = filters.subcategory;
+        if (filters.search) query.search = filters.search;
+        if (filters.is_new === '1' || filters.category === 'nouveautes') query.is_new = '1';
+        if (filters.is_sale === '1') query.is_sale = '1';
+        if (filters.sort) query.sort = filters.sort;
+        query.limit = 50;
+
+        const { products, total } = await Api.products.list(query);
+
+        document.getElementById('product-count').textContent = `${total} produit${total > 1 ? 's' : ''}`;
+        document.getElementById('toolbar-count').textContent = `${products.length} produit${products.length > 1 ? 's' : ''}`;
+
+        if (!products.length) {
+          grid.innerHTML = `
+            <div style="grid-column:1/-1;text-align:center;padding:5rem 0">
+              <p style="font-family:var(--font-serif);font-size:1.8rem;margin-bottom:1rem">Aucun produit trouvé</p>
+              <p class="text-light" style="margin-bottom:2rem">Essayez de modifier vos critères de recherche.</p>
+              <a href="category.html" class="btn btn-secondary">Voir tout le catalogue</a>
+            </div>`;
+          return;
+        }
+
+        grid.innerHTML = products.map(createProductCard).join('');
+      } catch (e) {
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem">
+          <p class="text-light">Erreur de chargement. ${e.message}</p>
+          <button onclick="loadProducts()" class="btn btn-secondary" style="margin-top:1rem">Réessayer</button>
+        </div>`;
+      }
+    }
+
+    // Filtres sidebar
+    const filterSidebar = document.getElementById('filters-sidebar');
+    const filtersOverlay = document.getElementById('filters-overlay');
+
+    document.getElementById('filter-toggle').addEventListener('click', () => {
+      filterSidebar.classList.add('open');
+      filtersOverlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+    const closeFilters = () => {
+      filterSidebar.classList.remove('open');
+      filtersOverlay.classList.remove('open');
+      document.body.style.overflow = '';
+    };
+    document.getElementById('filter-close').addEventListener('click', closeFilters);
+    filtersOverlay.addEventListener('click', closeFilters);
+
+    // Sync filter options with current state
+    if (filters.category) {
+      document.querySelectorAll(`[data-filter="category"][data-value="${filters.category}"]`).forEach(el => el.classList.add('active'));
+    }
+    if (filters.is_sale === '1') {
+      document.querySelectorAll(`[data-filter="is_sale"][data-value="1"]`).forEach(el => el.classList.add('active'));
+    }
+    if (filters.is_new === '1') {
+      document.querySelectorAll(`[data-filter="is_new"][data-value="1"]`).forEach(el => el.classList.add('active'));
+    }
+
+    document.querySelectorAll('.filter-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        const filterType = opt.dataset.filter;
+        const value = opt.dataset.value;
+        document.querySelectorAll(`[data-filter="${filterType}"]`).forEach(o => o.classList.remove('active'));
+        if (opt.classList.contains('active')) {
+          opt.classList.remove('active');
+          filters[filterType] = '';
+        } else {
+          opt.classList.add('active');
+          filters[filterType] = value;
+        }
+      });
+    });
+
+    document.getElementById('apply-filters').addEventListener('click', () => {
+      closeFilters();
+      loadProducts();
+    });
+
+    document.getElementById('reset-filters').addEventListener('click', () => {
+      filters = { category: '', subcategory: '', search: '', is_new: '', is_sale: '', sort: '' };
+      document.querySelectorAll('.filter-option').forEach(o => o.classList.remove('active'));
+      loadProducts();
+    });
+
+    document.getElementById('sort-select').addEventListener('change', (e) => {
+      filters.sort = e.target.value;
+      loadProducts();
+    });
+
+    // Init
+    updatePageTitle();
+    loadProducts();
+  </script>
+</body>
+</html>

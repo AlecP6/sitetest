@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guide des Tailles — ÉLÉGANCE</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .guide-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+    .guide-table th { background:var(--color-black); color:var(--color-white); padding:0.8rem 1rem; font-size:0.65rem; font-weight:500; letter-spacing:0.12em; text-transform:uppercase; text-align:center; }
+    .guide-table th:first-child { text-align:left; }
+    .guide-table td { padding:0.9rem 1rem; border-bottom:1px solid var(--color-border); text-align:center; }
+    .guide-table td:first-child { text-align:left; font-weight:500; }
+    .guide-table tr:hover td { background:var(--color-bg-alt); }
+    .tab-btn { padding:0.7rem 1.5rem; font-size:0.68rem; font-weight:500; letter-spacing:0.12em; text-transform:uppercase; border:1px solid var(--color-border); cursor:pointer; background:transparent; transition:all 0.2s; }
+    .tab-btn.active { background:var(--color-black); color:var(--color-white); border-color:var(--color-black); }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+  </style>
+</head>
+<body>
+  <div id="header-container"></div>
+
+  <main style="padding:3rem 0 5rem">
+    <div class="container-sm">
+
+      <nav class="category-breadcrumb">
+        <a href="index.html">Accueil</a>
+        <span class="breadcrumb-sep">›</span>
+        <span>Guide des tailles</span>
+      </nav>
+
+      <h1 style="font-family:var(--font-serif);font-size:2.5rem;font-weight:400;margin-bottom:0.5rem">Guide des <span style="font-style:italic">Tailles</span></h1>
+      <p style="color:var(--color-text-light);margin-bottom:2.5rem;font-size:0.85rem">Nos conseils pour trouver votre taille idéale</p>
+
+      <!-- Conseil général -->
+      <div style="background:var(--color-bg-alt);padding:1.5rem;margin-bottom:2.5rem;display:flex;gap:1.5rem;align-items:flex-start">
+        <svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.5;flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <p style="font-size:0.82rem;font-weight:300;line-height:1.8">En cas de doute entre deux tailles, nous vous conseillons de choisir la <strong>taille supérieure</strong>. Nos coupes sont généralement ajustées. Si vous avez des questions sur un article en particulier, n'hésitez pas à contacter notre service client.</p>
+      </div>
+
+      <!-- Onglets -->
+      <div style="display:flex;gap:0;margin-bottom:2rem;border-bottom:1px solid var(--color-border)">
+        <button class="tab-btn active" onclick="showTab('tops')">Hauts & Robes</button>
+        <button class="tab-btn" onclick="showTab('bottoms')">Bas</button>
+        <button class="tab-btn" onclick="showTab('manteaux')">Manteaux & Vestes</button>
+      </div>
+
+      <!-- Hauts & Robes -->
+      <div class="tab-content active" id="tab-tops">
+        <h3 style="font-size:1rem;font-weight:500;margin-bottom:1.2rem">Hauts, Blouses, Pulls, Robes</h3>
+        <div style="overflow-x:auto">
+          <table class="guide-table">
+            <thead>
+              <tr>
+                <th>Taille</th>
+                <th>FR</th>
+                <th>IT</th>
+                <th>UK</th>
+                <th>Poitrine (cm)</th>
+                <th>Tour de taille (cm)</th>
+                <th>Tour de hanches (cm)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>XS</td><td>34</td><td>38</td><td>6</td><td>78–80</td><td>60–62</td><td>86–88</td></tr>
+              <tr><td>S</td><td>36</td><td>40</td><td>8</td><td>82–84</td><td>64–66</td><td>90–92</td></tr>
+              <tr><td>M</td><td>38</td><td>42</td><td>10</td><td>86–88</td><td>68–70</td><td>94–96</td></tr>
+              <tr><td>L</td><td>40</td><td>44</td><td>12</td><td>90–92</td><td>72–74</td><td>98–100</td></tr>
+              <tr><td>XL</td><td>42</td><td>46</td><td>14</td><td>94–96</td><td>76–78</td><td>102–104</td></tr>
+              <tr><td>XXL</td><td>44</td><td>48</td><td>16</td><td>98–100</td><td>80–82</td><td>106–108</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Bas -->
+      <div class="tab-content" id="tab-bottoms">
+        <h3 style="font-size:1rem;font-weight:500;margin-bottom:1.2rem">Jupes, Pantalons, Bermudas</h3>
+        <div style="overflow-x:auto">
+          <table class="guide-table">
+            <thead>
+              <tr>
+                <th>Taille FR</th>
+                <th>Tour de taille (cm)</th>
+                <th>Tour de hanches (cm)</th>
+                <th>Longueur entrejambe (cm)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>34</td><td>60–62</td><td>86–88</td><td>76</td></tr>
+              <tr><td>36</td><td>64–66</td><td>90–92</td><td>77</td></tr>
+              <tr><td>38</td><td>68–70</td><td>94–96</td><td>78</td></tr>
+              <tr><td>40</td><td>72–74</td><td>98–100</td><td>79</td></tr>
+              <tr><td>42</td><td>76–78</td><td>102–104</td><td>80</td></tr>
+              <tr><td>44</td><td>80–82</td><td>106–108</td><td>81</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Manteaux -->
+      <div class="tab-content" id="tab-manteaux">
+        <h3 style="font-size:1rem;font-weight:500;margin-bottom:1.2rem">Manteaux, Vestes, Blousons</h3>
+        <p style="font-size:0.82rem;color:var(--color-text-light);margin-bottom:1.2rem;font-weight:300">Les manteaux et vestes suivent le même tableau que les hauts. Pour une superposition avec des pulls épais, prenez une taille au-dessus.</p>
+        <div style="overflow-x:auto">
+          <table class="guide-table">
+            <thead>
+              <tr>
+                <th>Taille</th>
+                <th>FR</th>
+                <th>Poitrine (cm)</th>
+                <th>Épaules (cm)</th>
+                <th>Longueur dos (cm)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>XS</td><td>34</td><td>78–82</td><td>36</td><td>72</td></tr>
+              <tr><td>S</td><td>36</td><td>82–86</td><td>37</td><td>74</td></tr>
+              <tr><td>M</td><td>38</td><td>86–90</td><td>38</td><td>76</td></tr>
+              <tr><td>L</td><td>40</td><td>90–94</td><td>39</td><td>78</td></tr>
+              <tr><td>XL</td><td>42</td><td>94–98</td><td>40</td><td>80</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Comment prendre ses mesures -->
+      <section style="margin-top:3rem;padding-top:2.5rem;border-top:1px solid var(--color-border)">
+        <h2 style="font-family:var(--font-serif);font-size:1.8rem;font-weight:400;margin-bottom:1.5rem">Comment prendre ses mesures ?</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem">
+          <div style="background:var(--color-bg-alt);padding:1.5rem;text-align:center">
+            <div style="font-size:2rem;margin-bottom:0.8rem">📏</div>
+            <div style="font-size:0.68rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem">Tour de poitrine</div>
+            <p style="font-size:0.78rem;font-weight:300;line-height:1.7;color:var(--color-text-light)">Mesurez à l'endroit le plus fort de la poitrine, en passant sous les bras</p>
+          </div>
+          <div style="background:var(--color-bg-alt);padding:1.5rem;text-align:center">
+            <div style="font-size:2rem;margin-bottom:0.8rem">📏</div>
+            <div style="font-size:0.68rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem">Tour de taille</div>
+            <p style="font-size:0.78rem;font-weight:300;line-height:1.7;color:var(--color-text-light)">Mesurez à l'endroit le plus fin de la taille, sans serrer</p>
+          </div>
+          <div style="background:var(--color-bg-alt);padding:1.5rem;text-align:center">
+            <div style="font-size:2rem;margin-bottom:0.8rem">📏</div>
+            <div style="font-size:0.68rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem">Tour de hanches</div>
+            <p style="font-size:0.78rem;font-weight:300;line-height:1.7;color:var(--color-text-light)">Mesurez à l'endroit le plus fort des hanches, pieds joints</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <div id="footer-container"></div>
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    function showTab(id) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + id).classList.add('active');
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>

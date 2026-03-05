@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion Admin — ÉLÉGANCE</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div class="login-page">
+    <div class="login-card">
+      <div class="login-brand">
+        <h1>ÉLÉGANCE</h1>
+        <small>Espace Administration</small>
+      </div>
+
+      <div id="err" class="alert alert-danger" style="display:none"></div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label" for="email">Adresse email</label>
+          <input type="email" id="email" class="form-control" placeholder="admin@elegance.fr" required autocomplete="email">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label" for="password">Mot de passe</label>
+          <input type="password" id="password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn-login" id="login-btn">Se connecter</button>
+      </form>
+
+      <div class="back-link"><a href="../index.html">← Retour au site</a></div>
+    </div>
+  </div>
+
+  <script>
+    const API = 'http://localhost:3000/api';
+
+    // Si déjà connecté en admin → rediriger directement
+    (function () {
+      const t = localStorage.getItem('token');
+      if (!t) return;
+      try {
+        const p = JSON.parse(atob(t.split('.')[1]));
+        if (p.role === 'admin' && p.exp > Date.now() / 1000)
+          window.location.href = 'dashboard.html';
+      } catch {}
+    })();
+
+    document.getElementById('login-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = document.getElementById('login-btn');
+      const err = document.getElementById('err');
+      err.style.display = 'none';
+      btn.textContent   = 'Connexion en cours…';
+      btn.disabled      = true;
+
+      try {
+        const res  = await fetch(`${API}/auth/login`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({
+            email:    document.getElementById('email').value.trim(),
+            password: document.getElementById('password').value,
+          }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          err.textContent    = data.error || 'Erreur de connexion';
+          err.style.display  = 'block';
+          return;
+        }
+        if (data.user.role !== 'admin') {
+          err.textContent   = 'Accès refusé — ce compte n\'a pas les droits administrateur.';
+          err.style.display = 'block';
+          return;
+        }
+
+        // Stocker dans les mêmes clés que le site principal
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user',  JSON.stringify(data.user));
+        window.location.href = 'dashboard.html';
+
+      } catch {
+        err.textContent   = 'Impossible de contacter le serveur. Vérifiez que le backend est démarré (npm run dev dans /backend).';
+        err.style.display = 'block';
+      } finally {
+        btn.textContent = 'Se connecter';
+        btn.disabled    = false;
+      }
+    });
+  </script>
+</body>
+</html>

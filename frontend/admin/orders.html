@@ -1,0 +1,307 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commandes — Admin ÉLÉGANCE</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <div id="admin-sidebar"></div>
+
+    <main class="admin-main">
+      <div class="admin-topbar">
+        <h1>Suivi des commandes</h1>
+        <div class="topbar-user">
+          <div class="topbar-avatar" id="topbar-avatar">AD</div>
+          <span id="topbar-name">Admin</span>
+        </div>
+      </div>
+
+      <div class="admin-content">
+        <div class="admin-card">
+          <!-- Toolbar -->
+          <div class="table-toolbar">
+            <div class="search-wrap">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="search-input" placeholder="N° commande ou email…" oninput="debounceLoad()">
+            </div>
+            <select id="status-filter" class="form-control" style="width:auto;padding:0.45rem 0.7rem" onchange="loadOrders()">
+              <option value="">Tous les statuts</option>
+              <option value="en_attente">En attente</option>
+              <option value="confirme">Confirmé</option>
+              <option value="en_preparation">En préparation</option>
+              <option value="expedie">Expédié</option>
+              <option value="livre">Livré</option>
+              <option value="annule">Annulé</option>
+            </select>
+            <span id="count-label" style="color:var(--muted);font-size:0.8rem;margin-left:auto"></span>
+          </div>
+
+          <!-- Table -->
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>N° Commande</th>
+                  <th>Client</th>
+                  <th>Date</th>
+                  <th>Articles</th>
+                  <th>Total</th>
+                  <th>Statut</th>
+                  <th style="text-align:right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="orders-body">
+                <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted)">Chargement…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="pagination" class="pagination"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ── Modal Détail Commande ────────────────────────────── -->
+  <div class="modal-overlay" id="order-modal">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2 class="modal-title">Détail de la commande</h2>
+        <button class="modal-close" onclick="closeModal('order-modal')">×</button>
+      </div>
+      <div class="modal-body" id="order-detail-body" style="padding:0"></div>
+      <div class="modal-footer">
+        <button class="btn-a btn-secondary" onclick="closeModal('order-modal')">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal Mise à jour Statut ─────────────────────────── -->
+  <div class="modal-overlay" id="status-modal">
+    <div class="modal" style="max-width:440px">
+      <div class="modal-header">
+        <h2 class="modal-title">Modifier le statut</h2>
+        <button class="modal-close" onclick="closeModal('status-modal')">×</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom:1rem;color:var(--muted);font-size:0.85rem">
+          Commande : <strong id="status-order-num"></strong>
+        </p>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Nouveau statut</label>
+          <select id="new-status" class="form-control">
+            <option value="en_attente">En attente</option>
+            <option value="confirme">Confirmé</option>
+            <option value="en_preparation">En préparation</option>
+            <option value="expedie">Expédié</option>
+            <option value="livre">Livré</option>
+            <option value="annule">Annulé</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-a btn-secondary" onclick="closeModal('status-modal')">Annuler</button>
+        <button class="btn-a btn-primary"   id="save-status-btn">Mettre à jour</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    const PAGE_SIZE = 20;
+    let currentPage = 1;
+    let totalOrders = 0;
+    let debTimer;
+
+    checkAdminAuth();
+    renderSidebar('orders');
+    loadOrders();
+
+    function debounceLoad() { clearTimeout(debTimer); debTimer = setTimeout(loadOrders, 350); }
+
+    async function loadOrders() { currentPage = 1; await renderOrders(); }
+
+    async function renderOrders() {
+      const search  = document.getElementById('search-input').value.trim();
+      const status  = document.getElementById('status-filter').value;
+      const offset  = (currentPage - 1) * PAGE_SIZE;
+      const tbody   = document.getElementById('orders-body');
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted)">Chargement…</td></tr>`;
+
+      try {
+        const params = new URLSearchParams({ limit: PAGE_SIZE, offset });
+        if (search) params.set('search', search);
+        if (status) params.set('status', status);
+
+        const data = await apiFetch(`/admin/orders?${params}`);
+        totalOrders = data.total;
+        document.getElementById('count-label').textContent = `${totalOrders} commande${totalOrders > 1 ? 's' : ''}`;
+
+        if (!data.orders.length) {
+          tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">◈</div><p>Aucune commande trouvée</p></div></td></tr>`;
+          renderPagination(); return;
+        }
+
+        tbody.innerHTML = data.orders.map(o => {
+          const addr = o.shipping_address || {};
+          const client = addr.first_name
+            ? `${addr.first_name} ${addr.last_name}<br><small style="color:var(--muted)">${o.email}</small>`
+            : o.email;
+          return `
+            <tr>
+              <td><code style="font-size:0.78rem">${o.order_number}</code></td>
+              <td>${client}</td>
+              <td style="white-space:nowrap">${fmtDate(o.created_at)}</td>
+              <td style="text-align:center">${o.items ? o.items.length : 0}</td>
+              <td><strong>${fmtEur(o.total)}</strong></td>
+              <td>${statusBadge(o.status)}</td>
+              <td style="text-align:right;white-space:nowrap">
+                <button class="btn-a btn-secondary btn-sm" onclick="viewOrder(${o.id})" title="Voir détail">👁</button>
+                <button class="btn-a btn-primary btn-sm" onclick="openStatusModal(${o.id},'${o.order_number}','${o.status}')" style="margin-left:4px" title="Changer statut">Statut</button>
+              </td>
+            </tr>`;
+        }).join('');
+
+        renderPagination();
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--danger)">${err.message}</td></tr>`;
+      }
+    }
+
+    function renderPagination() {
+      const pages = Math.ceil(totalOrders / PAGE_SIZE);
+      const el = document.getElementById('pagination');
+      if (pages <= 1) { el.innerHTML = ''; return; }
+      let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
+      for (let i = 1; i <= pages; i++)
+        html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+      html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages?'disabled':''}>›</button>`;
+      el.innerHTML = html;
+    }
+
+    async function goPage(p) {
+      if (p < 1 || p > Math.ceil(totalOrders / PAGE_SIZE)) return;
+      currentPage = p;
+      await renderOrders();
+      window.scrollTo(0, 0);
+    }
+
+    // ── View order detail ──
+    async function viewOrder(id) {
+      const body = document.getElementById('order-detail-body');
+      body.innerHTML = `<div style="padding:2rem;text-align:center;color:var(--muted)">Chargement…</div>`;
+      openModal('order-modal');
+      try {
+        const o = await apiFetch(`/admin/orders`).then(d => d.orders.find(x => x.id === id));
+        if (!o) throw new Error('Commande non trouvée');
+
+        const addr = o.shipping_address || {};
+        const items = o.items || [];
+
+        body.innerHTML = `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;padding:1.25rem;border-bottom:1px solid var(--border)">
+            <div>
+              <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.3rem">N° Commande</div>
+              <strong style="font-size:1rem">${o.order_number}</strong>
+            </div>
+            <div style="text-align:right">
+              ${statusBadge(o.status)}
+              <div style="font-size:0.75rem;color:var(--muted);margin-top:.35rem">${fmtDate(o.created_at)}</div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;padding:1.25rem;border-bottom:1px solid var(--border)">
+            <div>
+              <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.5rem">Client</div>
+              <div>${o.email}</div>
+              ${addr.first_name ? `<div>${addr.first_name} ${addr.last_name}</div>` : ''}
+            </div>
+            <div>
+              <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.5rem">Adresse de livraison</div>
+              ${addr.address ? `
+                <div>${addr.address}</div>
+                ${addr.address2 ? `<div>${addr.address2}</div>` : ''}
+                <div>${addr.postal_code} ${addr.city}</div>
+                <div>${addr.country || 'France'}</div>
+              ` : '<div style="color:var(--muted)">Non renseignée</div>'}
+            </div>
+          </div>
+
+          <div style="padding:1.25rem;border-bottom:1px solid var(--border)">
+            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.75rem">Articles commandés</div>
+            <table class="admin-table" style="border:1px solid var(--border);border-radius:6px;overflow:hidden">
+              <thead>
+                <tr><th>Produit</th><th>Taille</th><th>Couleur</th><th>Qté</th><th style="text-align:right">Prix unitaire</th><th style="text-align:right">Total</th></tr>
+              </thead>
+              <tbody>
+                ${items.map(it => `
+                  <tr>
+                    <td>${it.product_name}</td>
+                    <td>${it.size || '—'}</td>
+                    <td>${it.color || '—'}</td>
+                    <td style="text-align:center">${it.quantity}</td>
+                    <td style="text-align:right">${fmtEur(it.product_price)}</td>
+                    <td style="text-align:right"><strong>${fmtEur(it.product_price * it.quantity)}</strong></td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div style="display:flex;justify-content:flex-end;gap:2rem;padding:1.25rem">
+            <div style="text-align:right">
+              <div style="display:flex;justify-content:space-between;gap:3rem;margin-bottom:.4rem">
+                <span style="color:var(--muted)">Sous-total</span><strong>${fmtEur(o.subtotal)}</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;gap:3rem;margin-bottom:.4rem">
+                <span style="color:var(--muted)">Livraison</span><strong>${o.shipping_cost === 0 ? 'Offerte' : fmtEur(o.shipping_cost)}</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;gap:3rem;padding-top:.5rem;border-top:2px solid var(--border);font-size:1.05rem">
+                <span>Total</span><strong>${fmtEur(o.total)}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div style="padding:0 1.25rem 1.25rem">
+            <button class="btn-a btn-primary" onclick="closeModal('order-modal');openStatusModal(${o.id},'${o.order_number}','${o.status}')">
+              Modifier le statut
+            </button>
+          </div>`;
+      } catch (err) {
+        body.innerHTML = `<div style="padding:2rem;color:var(--danger)">${err.message}</div>`;
+      }
+    }
+
+    // ── Status modal ──
+    let statusTarget = null;
+    function openStatusModal(id, orderNum, currentStatus) {
+      statusTarget = id;
+      document.getElementById('status-order-num').textContent = orderNum;
+      document.getElementById('new-status').value = currentStatus;
+      document.getElementById('save-status-btn').onclick = doUpdateStatus;
+      openModal('status-modal');
+    }
+
+    async function doUpdateStatus() {
+      if (!statusTarget) return;
+      const status  = document.getElementById('new-status').value;
+      const saveBtn = document.getElementById('save-status-btn');
+      saveBtn.disabled = true;
+      try {
+        await apiFetch(`/admin/orders/${statusTarget}/status`, {
+          method: 'PUT', body: JSON.stringify({ status }),
+        });
+        toast('Statut mis à jour ✓', 'success');
+        closeModal('status-modal');
+        await renderOrders();
+      } catch (err) {
+        toast(err.message, 'error');
+      } finally {
+        saveBtn.disabled = false;
+        statusTarget = null;
+      }
+    }
+  </script>
+</body>
+</html>

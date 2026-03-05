@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ÉLÉGANCE — Boutique de Vêtements Femme</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="header-container"></div>
+
+  <main>
+    <!-- ══ HERO BANNER ══════════════════════════════════════════ -->
+    <section class="hero">
+      <div class="hero-main">
+        <div class="hero-img-placeholder hero-bg-main"></div>
+        <div class="hero-overlay">
+          <h2>Nouvelle Collection</h2>
+          <p>Printemps — Été 2025</p>
+          <a href="category.html?category=nouveautes" class="btn btn-white">Découvrir</a>
+        </div>
+      </div>
+      <div class="hero-secondary">
+        <div class="hero-secondary-item">
+          <div class="hero-img-placeholder hero-bg-robes"></div>
+          <div class="hero-overlay">
+            <h2>Robes & Combinaisons</h2>
+            <a href="category.html?category=robes" class="btn btn-white btn-sm">Voir la sélection</a>
+          </div>
+        </div>
+        <div class="hero-secondary-item">
+          <div class="hero-img-placeholder hero-bg-soldes"></div>
+          <div class="hero-overlay">
+            <h2>Soldes</h2>
+            <p>Jusqu'à -50%</p>
+            <a href="category.html?is_sale=1" class="btn btn-white btn-sm" style="background:rgba(185,64,64,0.9);border-color:transparent">Profiter des offres</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ CATÉGORIES RAPIDES ═══════════════════════════════════ -->
+    <section class="quick-cats">
+      <div class="container">
+        <div class="quick-cats-list">
+          <a href="category.html?category=nouveautes" class="quick-cat-item">
+            <div class="quick-cat-img qcat-nouveautes"></div>
+            <span class="quick-cat-label">Nouveautés</span>
+          </a>
+          <a href="category.html?category=vetements&subcategory=tops" class="quick-cat-item">
+            <div class="quick-cat-img qcat-tops"></div>
+            <span class="quick-cat-label">Tops & Blouses</span>
+          </a>
+          <a href="category.html?category=robes" class="quick-cat-item">
+            <div class="quick-cat-img qcat-robes"></div>
+            <span class="quick-cat-label">Robes</span>
+          </a>
+          <a href="category.html?category=manteaux" class="quick-cat-item">
+            <div class="quick-cat-img qcat-manteaux"></div>
+            <span class="quick-cat-label">Manteaux</span>
+          </a>
+          <a href="category.html?category=accessoires" class="quick-cat-item">
+            <div class="quick-cat-img qcat-accessoires"></div>
+            <span class="quick-cat-label">Accessoires</span>
+          </a>
+          <a href="category.html?is_sale=1" class="quick-cat-item">
+            <div class="quick-cat-img qcat-soldes"></div>
+            <span class="quick-cat-label" style="color:var(--color-sale)">Soldes</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ NOUVEAUTÉS ═══════════════════════════════════════════ -->
+    <section class="products-section">
+      <div class="container">
+        <div class="products-header">
+          <h2 class="section-title" style="margin-bottom:0">Les <span>Nouveautés</span></h2>
+          <a href="category.html?category=nouveautes" class="btn-link">Tout voir</a>
+        </div>
+        <div class="products-grid" id="nouveautes-grid">
+          <!-- Chargé dynamiquement -->
+          <div class="skeleton" style="aspect-ratio:2/3;border-radius:2px"></div>
+          <div class="skeleton" style="aspect-ratio:2/3;border-radius:2px"></div>
+          <div class="skeleton" style="aspect-ratio:2/3;border-radius:2px"></div>
+          <div class="skeleton" style="aspect-ratio:2/3;border-radius:2px"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ BANNIÈRE PROMO ════════════════════════════════════════ -->
+    <section class="container">
+      <div class="promo-banner">
+        <div class="promo-banner-img"></div>
+        <div class="promo-banner-content">
+          <h2>L'Art du Savoir-Faire</h2>
+          <p>Des matières nobles, des coupes intemporelles</p>
+          <a href="category.html?category=vetements" class="btn btn-white">Explorer la collection</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SÉLECTION ROBES ══════════════════════════════════════ -->
+    <section class="products-section" style="background:var(--color-bg-alt);padding-top:4rem">
+      <div class="container">
+        <div class="products-header">
+          <h2 class="section-title" style="margin-bottom:0">Robes & <span>Combinaisons</span></h2>
+          <a href="category.html?category=robes" class="btn-link">Tout voir</a>
+        </div>
+        <div class="products-grid products-grid-3" id="robes-grid">
+          <div class="skeleton" style="aspect-ratio:2/3"></div>
+          <div class="skeleton" style="aspect-ratio:2/3"></div>
+          <div class="skeleton" style="aspect-ratio:2/3"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ DOUBLE BANNER ════════════════════════════════════════ -->
+    <section class="container" style="padding-top:3rem">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem">
+        <div style="position:relative;overflow:hidden;cursor:pointer" onclick="window.location.href='category.html?category=manteaux'">
+          <div class="banner-bg banner-bg-manteaux"></div>
+          <div class="hero-overlay">
+            <h2 style="font-size:2rem">Manteaux & Vestes</h2>
+            <span class="btn btn-white btn-sm" onclick="window.location.href='category.html?category=manteaux'">Voir la collection</span>
+          </div>
+        </div>
+        <div style="position:relative;overflow:hidden;cursor:pointer" onclick="window.location.href='category.html?category=accessoires'">
+          <div class="banner-bg banner-bg-accessoires"></div>
+          <div class="hero-overlay">
+            <h2 style="font-size:2rem">Accessoires</h2>
+            <span class="btn btn-white btn-sm" onclick="window.location.href='category.html?category=accessoires'">Voir la collection</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SOLDES ════════════════════════════════════════════════ -->
+    <section class="products-section">
+      <div class="container">
+        <div class="products-header">
+          <h2 class="section-title" style="margin-bottom:0;color:var(--color-sale)">Nos <span>Soldes</span></h2>
+          <a href="category.html?is_sale=1" class="btn-link" style="color:var(--color-sale)">Tout voir</a>
+        </div>
+        <div class="products-grid" id="soldes-grid">
+          <div class="skeleton" style="aspect-ratio:2/3"></div>
+          <div class="skeleton" style="aspect-ratio:2/3"></div>
+          <div class="skeleton" style="aspect-ratio:2/3"></div>
+          <div class="skeleton" style="aspect-ratio:2/3"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ AVANTAGES ════════════════════════════════════════════ -->
+    <section style="padding:3rem 0;border-top:1px solid var(--color-border);border-bottom:1px solid var(--color-border)">
+      <div class="container">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;text-align:center">
+          <div>
+            <svg viewBox="0 0 24 24" style="width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.2;margin:0 auto 0.8rem"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            <p style="font-size:0.65rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.3rem">Livraison offerte</p>
+            <p style="font-size:0.75rem;color:var(--color-text-light);font-weight:300">Dès 100€ d'achat</p>
+          </div>
+          <div>
+            <svg viewBox="0 0 24 24" style="width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.2;margin:0 auto 0.8rem"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+            <p style="font-size:0.65rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.3rem">Retours gratuits</p>
+            <p style="font-size:0.75rem;color:var(--color-text-light);font-weight:300">Sous 30 jours</p>
+          </div>
+          <div>
+            <svg viewBox="0 0 24 24" style="width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.2;margin:0 auto 0.8rem"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <p style="font-size:0.65rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.3rem">Paiement sécurisé</p>
+            <p style="font-size:0.75rem;color:var(--color-text-light);font-weight:300">SSL & 3D Secure</p>
+          </div>
+          <div>
+            <svg viewBox="0 0 24 24" style="width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.2;margin:0 auto 0.8rem"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <p style="font-size:0.65rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.3rem">Service client</p>
+            <p style="font-size:0.75rem;color:var(--color-text-light);font-weight:300">7j/7 de 9h à 20h</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    async function loadHomeProducts() {
+      try {
+        // Nouveautés
+        const { products: newProds } = await Api.products.list({ is_new: 1, limit: 4 });
+        const nGrid = document.getElementById('nouveautes-grid');
+        if (nGrid) nGrid.innerHTML = newProds.map(createProductCard).join('') || '<p class="text-light">Aucun produit</p>';
+
+        // Robes
+        const { products: robes } = await Api.products.list({ category: 'robes', limit: 3 });
+        const rGrid = document.getElementById('robes-grid');
+        if (rGrid) rGrid.innerHTML = robes.map(createProductCard).join('') || '<p class="text-light">Aucun produit</p>';
+
+        // Soldes
+        const { products: sales } = await Api.products.list({ is_sale: 1, limit: 4 });
+        const sGrid = document.getElementById('soldes-grid');
+        if (sGrid) sGrid.innerHTML = sales.map(createProductCard).join('') || '<p class="text-light">Aucun produit</p>';
+      } catch (e) {
+        console.warn('Backend non disponible, mode démo activé');
+      }
+    }
+    document.addEventListener('DOMContentLoaded', loadHomeProducts);
+  </script>
+</body>
+</html>

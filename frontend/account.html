@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon Compte — ÉLÉGANCE</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="header-container"></div>
+
+  <main class="account-page">
+    <div class="container">
+      <div class="account-layout">
+
+        <!-- Sidebar navigation -->
+        <aside class="account-sidebar">
+          <div class="account-sidebar-title" id="sidebar-name">Mon Compte</div>
+          <div class="account-sidebar-email" id="sidebar-email"></div>
+          <ul class="account-nav">
+            <li><a href="javascript:void(0)" class="active" onclick="showSection('dashboard', this)">Tableau de bord</a></li>
+            <li><a href="javascript:void(0)" onclick="showSection('orders', this)">Mes commandes</a></li>
+            <li><a href="javascript:void(0)" onclick="showSection('wishlist', this)">Mes favoris</a></li>
+            <li><a href="javascript:void(0)" onclick="showSection('addresses', this)">Mes adresses</a></li>
+            <li><a href="javascript:void(0)" onclick="showSection('profile', this)">Informations personnelles</a></li>
+            <li><a href="javascript:void(0)" onclick="showSection('password', this)">Modifier mon mot de passe</a></li>
+            <li><a href="javascript:void(0)" onclick="Auth.logout()" style="color:var(--color-text-light)">Se déconnecter</a></li>
+          </ul>
+        </aside>
+
+        <!-- Contenu principal -->
+        <div class="account-content">
+
+          <!-- Tableau de bord -->
+          <div id="section-dashboard">
+            <div class="account-section-title">Tableau de bord</div>
+            <div class="account-cards">
+              <div class="account-card" style="cursor:pointer" onclick="showSection('orders', document.querySelector('[onclick*=\"orders\"]'))">
+                <h4>Mes Commandes</h4>
+                <p id="dashboard-orders">—</p>
+              </div>
+              <div class="account-card" style="cursor:pointer" onclick="showSection('wishlist', document.querySelector('[onclick*=\"wishlist\"]'))">
+                <h4>Mes Favoris</h4>
+                <p id="dashboard-wishlist">—</p>
+              </div>
+              <div class="account-card" style="cursor:pointer" onclick="showSection('addresses', document.querySelector('[onclick*=\"addresses\"]'))">
+                <h4>Mes Adresses</h4>
+                <p id="dashboard-addresses">—</p>
+              </div>
+              <div class="account-card">
+                <h4>Fidélité</h4>
+                <p>0 point<br><small style="color:var(--color-text-light)">Programme à venir</small></p>
+              </div>
+            </div>
+            <div style="background:var(--color-bg-alt);padding:1.5rem">
+              <p style="font-size:0.82rem;font-weight:300;line-height:1.8">
+                Bienvenue dans votre espace personnel. Gérez vos commandes, vos adresses et vos informations personnelles.
+              </p>
+            </div>
+          </div>
+
+          <!-- Commandes -->
+          <div id="section-orders" class="hidden">
+            <div class="account-section-title">Mes Commandes</div>
+            <div id="orders-content">
+              <div class="skeleton" style="height:60px;margin-bottom:0.5rem"></div>
+              <div class="skeleton" style="height:60px;margin-bottom:0.5rem"></div>
+            </div>
+          </div>
+
+          <!-- Favoris -->
+          <div id="section-wishlist" class="hidden">
+            <div class="account-section-title">Mes Favoris</div>
+            <div class="products-grid" id="wishlist-grid">
+              <div class="skeleton" style="aspect-ratio:2/3"></div>
+              <div class="skeleton" style="aspect-ratio:2/3"></div>
+              <div class="skeleton" style="aspect-ratio:2/3"></div>
+              <div class="skeleton" style="aspect-ratio:2/3"></div>
+            </div>
+          </div>
+
+          <!-- Adresses -->
+          <div id="section-addresses" class="hidden">
+            <div class="account-section-title">Mes Adresses</div>
+            <div id="addresses-list" style="margin-bottom:2rem"></div>
+            <button class="btn btn-secondary" onclick="openAddressForm()">+ Ajouter une adresse</button>
+
+            <div id="address-form" class="hidden" style="margin-top:2rem;padding:1.5rem;background:var(--color-bg-alt)">
+              <div style="font-size:0.7rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:1.5rem">Nouvelle adresse</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Prénom *</label>
+                  <input type="text" id="addr-first-name">
+                </div>
+                <div class="form-group">
+                  <label>Nom *</label>
+                  <input type="text" id="addr-last-name">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Adresse *</label>
+                <input type="text" id="addr-address">
+              </div>
+              <div class="form-group">
+                <label>Complément</label>
+                <input type="text" id="addr-address2">
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Code postal *</label>
+                  <input type="text" id="addr-postal">
+                </div>
+                <div class="form-group">
+                  <label>Ville *</label>
+                  <input type="text" id="addr-city">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Pays</label>
+                <select id="addr-country">
+                  <option>France</option>
+                  <option>Belgique</option>
+                  <option>Suisse</option>
+                  <option>Luxembourg</option>
+                </select>
+              </div>
+              <div class="checkbox-group" style="margin-bottom:1.5rem">
+                <input type="checkbox" id="addr-default">
+                <label for="addr-default">Définir comme adresse par défaut</label>
+              </div>
+              <div style="display:flex;gap:0.8rem">
+                <button class="btn btn-primary" onclick="saveAddress()">Enregistrer</button>
+                <button class="btn btn-secondary" onclick="cancelAddressForm()">Annuler</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Profil -->
+          <div id="section-profile" class="hidden">
+            <div class="account-section-title">Informations personnelles</div>
+            <div style="max-width:500px">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Prénom</label>
+                  <input type="text" id="profile-first-name">
+                </div>
+                <div class="form-group">
+                  <label>Nom</label>
+                  <input type="text" id="profile-last-name">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="profile-email" disabled style="opacity:0.6;cursor:not-allowed">
+                <small style="font-size:0.72rem;color:var(--color-text-light)">L'email ne peut pas être modifié</small>
+              </div>
+              <div class="form-group">
+                <label>Téléphone</label>
+                <input type="tel" id="profile-phone">
+              </div>
+              <p class="form-success hidden" id="profile-success">Profil mis à jour avec succès</p>
+              <p class="form-error hidden" id="profile-error"></p>
+              <button class="btn btn-primary" onclick="updateProfile()">Enregistrer</button>
+            </div>
+          </div>
+
+          <!-- Mot de passe -->
+          <div id="section-password" class="hidden">
+            <div class="account-section-title">Modifier mon mot de passe</div>
+            <div style="max-width:400px">
+              <div class="form-group">
+                <label>Mot de passe actuel *</label>
+                <input type="password" id="current-password">
+              </div>
+              <div class="form-group">
+                <label>Nouveau mot de passe * <span style="font-weight:300;text-transform:none;letter-spacing:0;font-size:0.7rem;color:var(--color-text-light)">(min. 6 caractères)</span></label>
+                <input type="password" id="new-password">
+              </div>
+              <div class="form-group">
+                <label>Confirmer le nouveau mot de passe *</label>
+                <input type="password" id="confirm-password">
+              </div>
+              <p class="form-success hidden" id="password-success">Mot de passe mis à jour avec succès</p>
+              <p class="form-error hidden" id="password-error"></p>
+              <button class="btn btn-primary" onclick="updatePassword()">Modifier le mot de passe</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    if (!Auth.requireAuth()) { /* redirect handled */ }
+
+    let currentSection = 'dashboard';
+
+    function showSection(name, linkEl) {
+      document.querySelectorAll('[id^="section-"]').forEach(s => s.classList.add('hidden'));
+      document.getElementById(`section-${name}`)?.classList.remove('hidden');
+      document.querySelectorAll('.account-nav a').forEach(a => a.classList.remove('active'));
+      if (linkEl) linkEl.classList.add('active');
+      currentSection = name;
+
+      if (name === 'orders') loadOrders();
+      if (name === 'wishlist') loadWishlist();
+      if (name === 'addresses') loadAddresses();
+    }
+
+    async function loadDashboard() {
+      const user = Auth.getUser();
+      document.getElementById('sidebar-name').textContent = `${user.first_name} ${user.last_name}`;
+      document.getElementById('sidebar-email').textContent = user.email;
+      document.getElementById('profile-first-name').value = user.first_name;
+      document.getElementById('profile-last-name').value = user.last_name;
+      document.getElementById('profile-email').value = user.email;
+
+      try {
+        const [orders, addresses, wishlist] = await Promise.allSettled([
+          Api.orders.list(),
+          Api.auth.getAddresses(),
+          Api.auth.getWishlist(),
+        ]);
+        const ordersCount = orders.status === 'fulfilled' ? orders.value.length : 0;
+        const addrsCount = addresses.status === 'fulfilled' ? addresses.value.length : 0;
+        const wishCount = wishlist.status === 'fulfilled' ? wishlist.value.length : 0;
+
+        document.getElementById('dashboard-orders').textContent = `${ordersCount} commande${ordersCount > 1 ? 's' : ''}`;
+        document.getElementById('dashboard-addresses').textContent = `${addrsCount} adresse${addrsCount > 1 ? 's' : ''}`;
+        document.getElementById('dashboard-wishlist').textContent = `${wishCount} article${wishCount > 1 ? 's' : ''}`;
+
+        // Pré-charger le téléphone
+        const me = await Api.auth.me();
+        document.getElementById('profile-phone').value = me.phone || '';
+      } catch {}
+    }
+
+    async function loadOrders() {
+      const container = document.getElementById('orders-content');
+      try {
+        const orders = await Api.orders.list();
+        if (!orders.length) {
+          container.innerHTML = `
+            <div style="text-align:center;padding:3rem">
+              <p style="font-family:var(--font-serif);font-size:1.5rem;margin-bottom:1rem">Aucune commande pour le moment</p>
+              <a href="category.html" class="btn btn-secondary">Commencer mes achats</a>
+            </div>`;
+          return;
+        }
+        container.innerHTML = `
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>N° Commande</th>
+                <th>Date</th>
+                <th>Articles</th>
+                <th>Total</th>
+                <th>Statut</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${orders.map(o => `
+                <tr>
+                  <td><strong>${o.order_number}</strong></td>
+                  <td>${formatDate(o.created_at)}</td>
+                  <td>${o.items?.length || 0} article${(o.items?.length || 0) > 1 ? 's' : ''}</td>
+                  <td><strong>${formatPrice(o.total)}</strong></td>
+                  <td><span class="order-status status-${o.status}">${o.status.replace('_', ' ')}</span></td>
+                  <td><a href="confirmation.html?order=${o.order_number}" class="btn-link">Détails</a></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>`;
+      } catch (e) {
+        container.innerHTML = `<p class="text-light">Impossible de charger les commandes. ${e.message}</p>`;
+      }
+    }
+
+    async function loadWishlist() {
+      const grid = document.getElementById('wishlist-grid');
+      try {
+        const items = await Api.auth.getWishlist();
+        if (!items.length) {
+          grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem"><p style="font-family:var(--font-serif);font-size:1.5rem;margin-bottom:1rem">Votre liste de favoris est vide</p><a href="category.html" class="btn btn-secondary">Découvrir nos articles</a></div>`;
+          return;
+        }
+        grid.innerHTML = items.map(createProductCard).join('');
+      } catch {
+        grid.innerHTML = '<div style="grid-column:1/-1" class="text-light">Erreur de chargement des favoris.</div>';
+      }
+    }
+
+    async function loadAddresses() {
+      const list = document.getElementById('addresses-list');
+      try {
+        const addresses = await Api.auth.getAddresses();
+        if (!addresses.length) {
+          list.innerHTML = '<p class="text-light" style="font-size:0.85rem">Aucune adresse enregistrée.</p>';
+          return;
+        }
+        list.innerHTML = addresses.map(addr => `
+          <div style="background:var(--color-bg-alt);padding:1.2rem;margin-bottom:0.8rem;display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              ${addr.is_default ? '<span class="badge badge-new" style="margin-bottom:0.5rem;display:inline-block">Par défaut</span><br>' : ''}
+              <strong>${addr.first_name} ${addr.last_name}</strong><br>
+              <span style="font-size:0.82rem;font-weight:300;color:var(--color-text-light)">
+                ${addr.address}${addr.address2 ? ', ' + addr.address2 : ''}<br>
+                ${addr.postal_code} ${addr.city}, ${addr.country}
+              </span>
+            </div>
+            <button onclick="deleteAddress(${addr.id})" style="font-size:0.65rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;text-decoration:underline;cursor:pointer;opacity:0.6;border:none;background:none">Supprimer</button>
+          </div>
+        `).join('');
+      } catch {
+        list.innerHTML = '<p class="text-light">Erreur de chargement des adresses.</p>';
+      }
+    }
+
+    function openAddressForm() {
+      document.getElementById('address-form').classList.remove('hidden');
+    }
+    function cancelAddressForm() {
+      document.getElementById('address-form').classList.add('hidden');
+    }
+
+    async function saveAddress() {
+      const data = {
+        first_name: document.getElementById('addr-first-name').value.trim(),
+        last_name: document.getElementById('addr-last-name').value.trim(),
+        address: document.getElementById('addr-address').value.trim(),
+        address2: document.getElementById('addr-address2').value.trim(),
+        city: document.getElementById('addr-city').value.trim(),
+        postal_code: document.getElementById('addr-postal').value.trim(),
+        country: document.getElementById('addr-country').value,
+        is_default: document.getElementById('addr-default').checked,
+      };
+      if (!data.first_name || !data.last_name || !data.address || !data.city || !data.postal_code) {
+        Toast.error('Veuillez remplir tous les champs obligatoires');
+        return;
+      }
+      try {
+        await Api.auth.addAddress(data);
+        Toast.success('Adresse ajoutée');
+        cancelAddressForm();
+        loadAddresses();
+      } catch (e) {
+        Toast.error(e.message);
+      }
+    }
+
+    async function deleteAddress(id) {
+      if (!confirm('Supprimer cette adresse ?')) return;
+      try {
+        await Api.auth.deleteAddress(id);
+        Toast.success('Adresse supprimée');
+        loadAddresses();
+      } catch (e) {
+        Toast.error(e.message);
+      }
+    }
+
+    async function updateProfile() {
+      const data = {
+        first_name: document.getElementById('profile-first-name').value.trim(),
+        last_name: document.getElementById('profile-last-name').value.trim(),
+        phone: document.getElementById('profile-phone').value.trim(),
+      };
+      try {
+        await Api.auth.updateProfile(data);
+        const user = Auth.getUser();
+        Auth.setSession(Auth.getToken(), { ...user, first_name: data.first_name, last_name: data.last_name });
+        document.getElementById('sidebar-name').textContent = `${data.first_name} ${data.last_name}`;
+        document.getElementById('profile-success').classList.remove('hidden');
+        document.getElementById('profile-error').classList.add('hidden');
+        Toast.success('Profil mis à jour');
+      } catch (e) {
+        document.getElementById('profile-error').textContent = e.message;
+        document.getElementById('profile-error').classList.remove('hidden');
+      }
+    }
+
+    async function updatePassword() {
+      const current = document.getElementById('current-password').value;
+      const newPwd = document.getElementById('new-password').value;
+      const confirm = document.getElementById('confirm-password').value;
+      const successEl = document.getElementById('password-success');
+      const errorEl = document.getElementById('password-error');
+
+      successEl.classList.add('hidden');
+      errorEl.classList.add('hidden');
+
+      if (!current || !newPwd || !confirm) {
+        errorEl.textContent = 'Tous les champs sont requis';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      if (newPwd !== confirm) {
+        errorEl.textContent = 'Les mots de passe ne correspondent pas';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      if (newPwd.length < 6) {
+        errorEl.textContent = 'Le mot de passe doit contenir au moins 6 caractères';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      try {
+        await Api.auth.updatePassword({ current_password: current, new_password: newPwd });
+        successEl.classList.remove('hidden');
+        document.getElementById('current-password').value = '';
+        document.getElementById('new-password').value = '';
+        document.getElementById('confirm-password').value = '';
+        Toast.success('Mot de passe modifié');
+      } catch (e) {
+        errorEl.textContent = e.message;
+        errorEl.classList.remove('hidden');
+      }
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>
