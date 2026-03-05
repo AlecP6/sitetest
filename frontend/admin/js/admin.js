@@ -2,7 +2,9 @@
    ÉLÉGANCE — Admin shared utilities
    ═══════════════════════════════════════════════════════════ */
 
-const API = 'http://localhost:3000/api';
+const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'http://localhost:3000/api'
+  : '/api';
 
 // ── Auth ─────────────────────────────────────────────────────────────────────
 // Partage les mêmes clés que le site principal (token / user)

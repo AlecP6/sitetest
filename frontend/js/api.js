@@ -2,7 +2,10 @@
    API Client — Communication avec le backend
    =================================================================== */
 
-const API_BASE = 'http://localhost:3000/api';
+// Relative en production (même domaine), absolu en dev local
+const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'http://localhost:3000/api'
+  : '/api';
 
 const Api = {
   getHeaders() {

@@ -7,18 +7,32 @@ const { query, queryOne } = require('../database/db');
 const { adminMiddleware } = require('../middleware/auth');
 
 // ── Image upload ──────────────────────────────────────────────────────────────
-const uploadDir = path.join(__dirname, '..', '..', 'frontend', 'images', 'products');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+// Sur Vercel (production) le filesystem est en lecture seule → on utilise /tmp
+const isProduction = process.env.NODE_ENV === 'production';
 
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadDir),
-  filename:    (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
-    cb(null, `product-${Date.now()}${ext}`);
-  },
-});
+let uploadDir;
+let multerStorage;
+
+if (isProduction) {
+  // Vercel : stockage temporaire dans /tmp (ne persiste pas, mais évite le crash)
+  uploadDir = '/tmp/products';
+  multerStorage = multer.memoryStorage();
+} else {
+  uploadDir = path.join(__dirname, '..', '..', 'frontend', 'images', 'products');
+  try {
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+  } catch {}
+  multerStorage = multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, uploadDir),
+    filename:    (_req, file, cb) => {
+      const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
+      cb(null, `product-${Date.now()}${ext}`);
+    },
+  });
+}
+
 const upload = multer({
-  storage,
+  storage: multerStorage,
   limits: { fileSize: 8 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     if (/^image\/(jpeg|jpg|png|webp|gif)/.test(file.mimetype)) cb(null, true);
@@ -29,6 +43,14 @@ const upload = multer({
 // POST /api/admin/upload
 router.post('/upload', adminMiddleware, upload.single('image'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'Aucun fichier reçu' });
+
+  if (isProduction) {
+    // En production : on retourne un message indiquant qu'il faut utiliser une URL externe
+    return res.status(400).json({
+      error: 'Upload de fichier non disponible en production. Veuillez coller une URL externe (ex : Imgur, Cloudinary).',
+    });
+  }
+
   res.json({ url: `/images/products/${req.file.filename}` });
 });
 
